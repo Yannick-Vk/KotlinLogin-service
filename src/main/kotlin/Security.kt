@@ -24,7 +24,7 @@ fun Application.configureSecurity() {
             validate { credential ->
                 if (credential.payload.audience.contains(jwtConfig.audience)) JWTPrincipal(credential.payload) else null
             }
-            challenge { defaultScheme, realm -> // Respond with a 401 instead of a redirect
+            challenge { _, _ -> // Respond with a 401 instead of a redirect
                 call.respond(HttpStatusCode.Unauthorized, "Token is not valid, is expired or is missing.")
             }
         }
