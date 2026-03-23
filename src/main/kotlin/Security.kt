@@ -11,22 +11,19 @@ import io.ktor.server.routing.*
 
 fun Application.configureSecurity() {
     // Please read the jwt property from the config file if you are using EngineMain
-    val jwtAudience = environment.config.property("jwt.audience").getString()
-    val jwtDomain = environment.config.property("jwt.domain").getString()
-    val jwtRealm = environment.config.property("jwt.realm").getString()
-    val jwtSecret = environment.config.property("jwt.secret").getString()
+    val jwtConfig = getJwtConfig()
     install(Authentication) {
         jwt("jwt-auth") {
-            realm = jwtRealm
+            realm = jwtConfig.realm
             verifier(
                 JWT
-                    .require(Algorithm.HMAC256(jwtSecret))
-                    .withAudience(jwtAudience)
-                    .withIssuer(jwtDomain)
+                    .require(Algorithm.HMAC256(jwtConfig.secret))
+                    .withAudience(jwtConfig.audience)
+                    .withIssuer(jwtConfig.domain)
                     .build()
             )
             validate { credential ->
-                if (credential.payload.audience.contains(jwtAudience)) JWTPrincipal(credential.payload) else null
+                if (credential.payload.audience.contains(jwtConfig.audience)) JWTPrincipal(credential.payload) else null
             }
             challenge { defaultScheme, realm -> // Respond with a 401 instead of a redirect
                 call.respond(HttpStatusCode.Unauthorized, "Token is not valid, is expired or is missing.")

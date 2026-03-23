@@ -12,10 +12,7 @@ import java.util.Date
 
 fun Application.configureRouting() {
 
-    val jwtAudience = environment.config.property("jwt.audience").getString()
-    val jwtDomain = environment.config.property("jwt.domain").getString()
-    val jwtRealm = environment.config.property("jwt.realm").getString()
-    val jwtSecret = environment.config.property("jwt.secret").getString()
+    val jwtConfig = getJwtConfig()
 
     routing {
         get("/") {
@@ -30,11 +27,11 @@ fun Application.configureRouting() {
             val expiresAt = Date(System.currentTimeMillis() + 60_000);
             // Generate token
             val token = JWT.create()
-                .withAudience(jwtAudience)
-                .withIssuer(jwtDomain)
+                .withAudience(jwtConfig.audience)
+                .withIssuer(jwtConfig.domain)
                 .withClaim("username", user.username)
                 .withExpiresAt(expiresAt)
-                .sign(Algorithm.HMAC256(jwtSecret))
+                .sign(Algorithm.HMAC256(jwtConfig.secret))
 
             call.respond(hashMapOf("token" to token))
         }
