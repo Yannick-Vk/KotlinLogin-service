@@ -21,6 +21,10 @@ fun Application.configureRouting() {
             call.respondText("Hello World!")
         }
 
+        post("register") {
+            call.respondText("Not implemented yet!")
+        }
+
         post("/login") {
             val user = call.receive<UserCredentialsDTO>()
             // Handle credentials
