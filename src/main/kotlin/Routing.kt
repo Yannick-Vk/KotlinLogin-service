@@ -38,5 +38,15 @@ fun Application.configureRouting() {
 
             call.respond(hashMapOf("token" to token))
         }
+        // User has to be loggedIn
+        authenticate("jwt-auth") {
+            get("/user") {
+                val principal = call.principal<JWTPrincipal>()
+                // Get username from token claim
+                val username = principal!!.payload.getClaim("username").asString()
+
+                call.respondText("Welcome $username! You are logged in this protected /user route!")
+            }
+        }
     }
 }
