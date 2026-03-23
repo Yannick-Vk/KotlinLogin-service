@@ -6,7 +6,7 @@ ktor:
     port: 8080
   database:
     jdbcDriver: org.postgresql.Driver
-    url: jdbc:postgresql://db:5432/mitzieAuth
+    url: jdbc:postgresql://localhost:5432/mitzieAuth
     user: mitzie
     password: TEST123!
     poolSize: 10
