@@ -8,6 +8,8 @@ import io.ktor.server.auth.jwt.*
 import io.ktor.server.request.receive
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import xyz.mitzie.dto.UserCredentialsDTO
+import xyz.mitzie.dto.UserDTO
 import java.util.Date
 
 fun Application.configureRouting() {
@@ -42,7 +44,7 @@ fun Application.configureRouting() {
                 // Get username from token claim
                 val username = principal!!.payload.getClaim("username").asString()
 
-                call.respondText("Welcome $username! You are logged in this protected /user route!")
+                call.respond(UserDTO(username))
             }
         }
     }

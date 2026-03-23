@@ -1,4 +1,4 @@
-package xyz.mitzie
+package xyz.mitzie.dto
 
 import kotlinx.serialization.Serializable
 
