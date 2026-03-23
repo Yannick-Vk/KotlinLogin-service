@@ -1,8 +1,6 @@
 package xyz.mitzie
 
-import io.ktor.server.application.Application
-import io.ktor.server.application.application
-import io.ktor.server.application.ApplicationEnvironment
+import io.ktor.server.application.*
 
 data class JwtConfig(val audience: String, val domain: String, val realm: String, val secret: String)
 
