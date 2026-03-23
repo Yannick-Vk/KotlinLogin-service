@@ -7,4 +7,5 @@ ktor:
 jwt:
   domain: "https://jwt-provider-domain/"
   audience: "jwt-audience"
-  realm: "ktor sample app"
+  realm: "mitzie"
+  secret: "thisIsNotAGoodPlaceToStoreASecret"
