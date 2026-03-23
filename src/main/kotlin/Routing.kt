@@ -26,7 +26,7 @@ fun Application.configureRouting() {
             // Handle credentials
 
             // Set token expiration time in ms, 60sec
-            val expiresAt = Date(System.currentTimeMillis() + 60_000);
+            val expiresAt = Date(System.currentTimeMillis() + 60_000)
             // Generate token
             val token = JWT.create()
                 .withAudience(jwtConfig.audience)
