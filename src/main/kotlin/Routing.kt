@@ -18,7 +18,7 @@ fun Application.configureRouting() {
 
     routing {
         get("/") {
-            call.respondText("Hello World!")
+            call.respondText("Mitzie Auth Service up and running!")
         }
 
         post("register") {
