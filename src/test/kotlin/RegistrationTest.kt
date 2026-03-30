@@ -19,6 +19,8 @@ class RegistrationTest {
 
     // Requests
     private val emptyUsernameRequest = RegisterUserRequest("", validEmail, validPassword)
+    private val emptyEmailRequest = RegisterUserRequest(validUsername, "", validPassword)
+    private val emptyPasswordRequest = RegisterUserRequest(validUsername, validEmail, "")
 
     @Test
     fun testRegistrationSuccess() = testApplication {
@@ -63,7 +65,45 @@ class RegistrationTest {
             assertEquals(HttpStatusCode.BadRequest, status)
             assertEquals("Username cannot be empty", bodyAsText())
         }
+    }
 
+    @Test
+    fun testRegisterWithEmptyEmail() = testApplication {
+        environment { config = testConfig }
+        application { module() }
 
+        val client = createClient {
+            install(ClientContentNegotiation) {
+                json()
+            }
+        }
+
+        client.post("/register") {
+            contentType(ContentType.Application.Json)
+            setBody(emptyEmailRequest)
+        }.apply {
+            assertEquals(HttpStatusCode.BadRequest, status)
+            assertEquals("Email cannot be empty", bodyAsText())
+        }
+    }
+
+    @Test
+    fun testRegisterWithEmptyPassword() = testApplication {
+        environment { config = testConfig }
+        application { module() }
+
+        val client = createClient {
+            install(ClientContentNegotiation) {
+                json()
+            }
+        }
+
+        client.post("/register") {
+            contentType(ContentType.Application.Json)
+            setBody(emptyPasswordRequest)
+        }.apply {
+            assertEquals(HttpStatusCode.BadRequest, status)
+            assertEquals("Password cannot be empty", bodyAsText())
+        }
     }
 }
