@@ -10,7 +10,7 @@ import io.ktor.server.testing.*
 import xyz.mitzie.dto.RegisterUserRequest
 import kotlin.test.Test
 import kotlin.test.assertEquals
-
+import kotlin.test.assertTrue
 
 
 class ApplicationTest {
@@ -46,5 +46,33 @@ class ApplicationTest {
         client.get("/").apply {
             assertEquals(HttpStatusCode.OK, status)
         }
+    }
+
+    @Test
+    fun testRegistrationSuccess() = testApplication {
+        environment {
+            config = testConfig
+        }
+        application {
+            module()
+        }
+
+        val client = createClient {
+            install(ClientContentNegotiation) {
+                json()
+            }
+        }
+        val requestBody = RegisterUserRequest("newUser", "newuser@example.com","newPassword")
+
+        client.post("/register") {
+            contentType(ContentType.Application.Json)
+            setBody(requestBody)
+        }.apply {
+            assertEquals(HttpStatusCode.Created, status)
+            val responseBody = bodyAsText()
+            assertTrue(responseBody.contains("newUser"))
+            assertTrue(responseBody.contains("newuser@example.com"))
+        }
+
     }
 }
