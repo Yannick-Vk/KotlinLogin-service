@@ -8,6 +8,8 @@ import io.ktor.server.auth.jwt.*
 import io.ktor.server.request.receive
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import org.postgresql.util.PasswordUtil
+import xyz.mitzie.dto.RegisterUserRequest
 import xyz.mitzie.dto.UserCredentialsDTO
 import xyz.mitzie.dto.UserDTO
 import java.util.Date
@@ -22,7 +24,10 @@ fun Application.configureRouting() {
         }
 
         post("register") {
-            call.respondText("Not implemented yet!")
+            val request = call.receive<RegisterUserRequest>()
+
+            val hash = EncryptPassword(request.password)
+            call.respondText("Hello ${request.username}!, password: $hash")
         }
 
         post("/login") {
