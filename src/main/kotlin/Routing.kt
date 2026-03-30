@@ -48,6 +48,7 @@ fun Application.configureRouting() {
                 .withAudience(jwtConfig.audience)
                 .withIssuer(jwtConfig.domain)
                 .withClaim("username", user.username)
+                .withClaim("email", "no email saved")
                 .withExpiresAt(expiresAt)
                 .sign(Algorithm.HMAC256(jwtConfig.secret))
 
@@ -60,8 +61,9 @@ fun Application.configureRouting() {
                 val principal = call.principal<JWTPrincipal>()
                 // Get username from token claim
                 val username = principal!!.payload.getClaim("username").asString()
+                val email= principal.payload.getClaim("email").asString()
 
-                call.respond(UserDTO(username, "no email saved"))
+                call.respond(UserDTO(username, email))
             }
         }
     }
