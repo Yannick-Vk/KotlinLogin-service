@@ -2,16 +2,18 @@ package xyz.mitzie
 
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
+import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*
 import io.ktor.server.request.receive
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import org.postgresql.util.PasswordUtil
 import xyz.mitzie.dto.RegisterUserRequest
 import xyz.mitzie.dto.UserCredentialsDTO
 import xyz.mitzie.dto.UserDTO
+import xyz.mitzie.services.RegisterResult
+import xyz.mitzie.services.registerUser
 import java.util.Date
 
 fun Application.configureRouting() {
@@ -26,8 +28,13 @@ fun Application.configureRouting() {
         post("register") {
             val request = call.receive<RegisterUserRequest>()
 
-            val hash = EncryptPassword(request.password)
-            call.respondText("Hello ${request.username}!, password: $hash")
+            when (val result = registerUser(request)) {
+                is RegisterResult.Success -> call.respond(HttpStatusCode.Created, result.user)
+                is RegisterResult.ValidationError -> call.respond(HttpStatusCode.BadRequest, result.message)
+                is RegisterResult.ConflictError -> call.respond(HttpStatusCode.Conflict, result.message)
+                is RegisterResult.DatabaseError -> call.respond(HttpStatusCode.InternalServerError, result.message)
+                is RegisterResult.UnknownError -> call.respond(HttpStatusCode.InternalServerError, "An unknown error occurred")
+            }
         }
 
         post("/login") {
@@ -54,7 +61,7 @@ fun Application.configureRouting() {
                 // Get username from token claim
                 val username = principal!!.payload.getClaim("username").asString()
 
-                call.respond(UserDTO(username))
+                call.respond(UserDTO(username, "no email saved"))
             }
         }
     }
