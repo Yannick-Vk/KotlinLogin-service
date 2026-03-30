@@ -18,7 +18,11 @@ fun Application.configureRouting() {
 
     routing {
         get("/") {
-            call.respondText("Hello World!")
+            call.respondText("Mitzie Auth Service up and running!")
+        }
+
+        post("register") {
+            call.respondText("Not implemented yet!")
         }
 
         post("/login") {
@@ -39,6 +43,7 @@ fun Application.configureRouting() {
         }
         // User has to be loggedIn
         authenticate("jwt-auth") {
+            // Send back the user data
             get("/user") {
                 val principal = call.principal<JWTPrincipal>()
                 // Get username from token claim

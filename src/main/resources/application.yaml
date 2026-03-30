@@ -4,6 +4,14 @@ ktor:
       - xyz.mitzie.ApplicationKt.module
   deployment:
     port: 8080
+  database:
+    jdbcDriver: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/mitzieAuth
+    user: mitzie
+    password: TEST123!
+    poolSize: 10
+    autoCommit: false
+    transactionIsolation: TRANSACTION_REPEATABLE_READ
 jwt:
   domain: "https://jwt-provider-domain/"
   audience: "jwt-audience"
