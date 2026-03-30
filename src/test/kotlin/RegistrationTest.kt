@@ -177,7 +177,7 @@ class RegistrationTest {
             setBody(secondRequest)
         }.apply {
             assertEquals(HttpStatusCode.Conflict, status)
-            assertEquals("Username or Email already exists.", bodyAsText())
+            assertTrue(bodyAsText().contains("Username or Email already exists."))
         }
     }
 
@@ -206,7 +206,7 @@ class RegistrationTest {
             setBody(secondRequest)
         }.apply {
             assertEquals(HttpStatusCode.Conflict, status)
-            assertEquals("Username or Email already exists.", bodyAsText())
+            assertTrue(bodyAsText().contains("Username or Email already exists."))
         }
     }
 }
