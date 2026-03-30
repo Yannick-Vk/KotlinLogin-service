@@ -22,8 +22,10 @@ class RegistrationTest {
     private val emptyEmailRequest = RegisterUserRequest(validUsername, "", validPassword)
     private val emptyPasswordRequest = RegisterUserRequest(validUsername, validEmail, "")
     private val passwordTooShortRequest = RegisterUserRequest(validUsername, validEmail, "short")
-
     private val invalidEmailRequest = RegisterUserRequest(validUsername, "not-an-email", validPassword)
+
+    private val baseDuplicateUsername = "duplicateUser"
+    private val baseDuplicateEmail = "dueplicate@example.com"
 
     @Test
     fun testRegistrationSuccess() = testApplication {
@@ -147,6 +149,64 @@ class RegistrationTest {
         }.apply {
             assertEquals(HttpStatusCode.BadRequest, status)
             assertEquals("Invalid email format", bodyAsText())
+        }
+    }
+
+    @Test
+    fun testRegisterWithDuplicateUsername() = testApplication {
+        environment { config = testConfig }
+        application { module() }
+
+        val client = createClient {
+            install(ClientContentNegotiation) {
+                json()
+            }
+        }
+
+        val firstRequest = RegisterUserRequest(baseDuplicateUsername, "dupemail1@example.com", validPassword)
+        client.post("/register") {
+            contentType(ContentType.Application.Json)
+            setBody(firstRequest)
+        }.apply {
+            assertEquals(HttpStatusCode.Created, status)
+        }
+
+        val secondRequest = RegisterUserRequest(baseDuplicateUsername, "dupemail2@example.com", validPassword)
+        client.post("/register") {
+            contentType(ContentType.Application.Json)
+            setBody(secondRequest)
+        }.apply {
+            assertEquals(HttpStatusCode.Conflict, status)
+            assertEquals("Username or Email already exists.", bodyAsText())
+        }
+    }
+
+    @Test
+    fun testRegisterWithDuplicateEmail() = testApplication {
+        environment { config = testConfig }
+        application { module() }
+
+        val client = createClient {
+            install(ClientContentNegotiation) {
+                json()
+            }
+        }
+
+        val firstRequest = RegisterUserRequest("user1", baseDuplicateEmail, validPassword)
+        client.post("/register") {
+            contentType(ContentType.Application.Json)
+            setBody(firstRequest)
+        }.apply {
+            assertEquals(HttpStatusCode.Created, status)
+        }
+
+        val secondRequest = RegisterUserRequest("user2", baseDuplicateEmail, validPassword)
+        client.post("/register") {
+            contentType(ContentType.Application.Json)
+            setBody(secondRequest)
+        }.apply {
+            assertEquals(HttpStatusCode.Conflict, status)
+            assertEquals("Username or Email already exists.", bodyAsText())
         }
     }
 }
