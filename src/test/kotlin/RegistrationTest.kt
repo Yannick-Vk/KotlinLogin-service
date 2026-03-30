@@ -25,7 +25,7 @@ class RegistrationTest {
     private val invalidEmailRequest = RegisterUserRequest(validUsername, "not-an-email", validPassword)
 
     private val baseDuplicateUsername = "duplicateUser"
-    private val baseDuplicateEmail = "dueplicate@example.com"
+    private val baseDuplicateEmail = "dupelicate@example.com"
 
     @Test
     fun testRegistrationSuccess() = testApplication {
