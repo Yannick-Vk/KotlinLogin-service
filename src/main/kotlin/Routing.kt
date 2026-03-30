@@ -43,6 +43,7 @@ fun Application.configureRouting() {
         }
         // User has to be loggedIn
         authenticate("jwt-auth") {
+            // Send back the user data
             get("/user") {
                 val principal = call.principal<JWTPrincipal>()
                 // Get username from token claim
