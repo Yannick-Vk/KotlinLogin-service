@@ -21,6 +21,7 @@ class RegistrationTest {
     private val emptyUsernameRequest = RegisterUserRequest("", validEmail, validPassword)
     private val emptyEmailRequest = RegisterUserRequest(validUsername, "", validPassword)
     private val emptyPasswordRequest = RegisterUserRequest(validUsername, validEmail, "")
+    private val passwordTooShortRequest = RegisterUserRequest(validUsername, validEmail, "short")
 
     @Test
     fun testRegistrationSuccess() = testApplication {
@@ -104,6 +105,26 @@ class RegistrationTest {
         }.apply {
             assertEquals(HttpStatusCode.BadRequest, status)
             assertEquals("Password cannot be empty", bodyAsText())
+        }
+    }
+
+    @Test
+    fun testRegisterWithPasswordTooShort() = testApplication {
+        environment { config = testConfig }
+        application { module() }
+
+        val client = createClient {
+            install(ClientContentNegotiation) {
+                json()
+            }
+        }
+
+        client.post("/register") {
+            contentType(ContentType.Application.Json)
+            setBody(passwordTooShortRequest)
+        }.apply {
+            assertEquals(HttpStatusCode.BadRequest, status)
+            assertEquals("Password must be at least 8 characters long", bodyAsText())
         }
     }
 }
