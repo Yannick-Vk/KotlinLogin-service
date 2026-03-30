@@ -40,4 +40,7 @@ dependencies {
     // Test
     testImplementation("io.ktor:ktor-server-test-host")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
+    testImplementation("io.ktor:ktor-client-content-negotiation:2.3.8")
+    testImplementation("io.ktor:ktor-serialization-kotlinx-json:2.3.8")
+    testImplementation("com.h2database:h2:2.2.224")
 }
