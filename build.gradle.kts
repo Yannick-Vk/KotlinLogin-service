@@ -36,7 +36,11 @@ dependencies {
     implementation("org.jetbrains.exposed:exposed-dao:$exposed_version")
     implementation("com.zaxxer:HikariCP:$hikari_version")
     implementation("org.postgresql:postgresql:$postgres_version")
+    implementation("org.mindrot:jbcrypt:0.4")
     // Test
     testImplementation("io.ktor:ktor-server-test-host")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
+    testImplementation("io.ktor:ktor-client-content-negotiation:2.3.8")
+    testImplementation("io.ktor:ktor-serialization-kotlinx-json:2.3.8")
+    testImplementation("com.h2database:h2:2.2.224")
 }
