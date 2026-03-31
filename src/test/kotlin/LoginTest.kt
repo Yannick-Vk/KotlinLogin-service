@@ -13,11 +13,6 @@ import kotlin.test.assertEquals
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation as ClientContentNegotiation
 
 class LoginTest {
-
-    private val validUsername = "newUser"
-    private val validEmail = "newuser@example.com"
-    private val validPassword = "newPassword"
-
     // Requests
     private val emptyUsernameRequest = LoginUserRequest("", validPassword)
     private val emptyPasswordRequest = LoginUserRequest(validUsername, "")

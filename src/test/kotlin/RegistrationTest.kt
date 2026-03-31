@@ -12,11 +12,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 class RegistrationTest {
-
-    private val validUsername = "newUser"
-    private val validEmail = "newuser@example.com"
-    private val validPassword = "newPassword"
-
     // Requests
     private val emptyUsernameRequest = RegisterUserRequest("", validEmail, validPassword)
     private val emptyEmailRequest = RegisterUserRequest(validUsername, "", validPassword)
@@ -26,6 +21,8 @@ class RegistrationTest {
 
     private val baseDuplicateUsername = "duplicateUser"
     private val baseDuplicateEmail = "dupelicate@example.com"
+
+    private val route = "/register"
 
     @Test
     fun testRegistrationSuccess() = testApplication {
@@ -40,7 +37,7 @@ class RegistrationTest {
 
         val requestBody = RegisterUserRequest(validUsername, validEmail, validPassword)
 
-        client.post("/register") {
+        client.post(route) {
             contentType(ContentType.Application.Json)
             setBody(requestBody)
         }.apply {
@@ -63,7 +60,7 @@ class RegistrationTest {
             }
         }
 
-        client.post("/register") {
+        client.post(route) {
             contentType(ContentType.Application.Json)
             setBody(emptyUsernameRequest)
         }.apply {
@@ -83,7 +80,7 @@ class RegistrationTest {
             }
         }
 
-        client.post("/register") {
+        client.post(route) {
             contentType(ContentType.Application.Json)
             setBody(emptyEmailRequest)
         }.apply {
@@ -103,7 +100,7 @@ class RegistrationTest {
             }
         }
 
-        client.post("/register") {
+        client.post(route) {
             contentType(ContentType.Application.Json)
             setBody(emptyPasswordRequest)
         }.apply {
@@ -123,7 +120,7 @@ class RegistrationTest {
             }
         }
 
-        client.post("/register") {
+        client.post(route) {
             contentType(ContentType.Application.Json)
             setBody(passwordTooShortRequest)
         }.apply {
@@ -143,7 +140,7 @@ class RegistrationTest {
             }
         }
 
-        client.post("/register") {
+        client.post(route) {
             contentType(ContentType.Application.Json)
             setBody(invalidEmailRequest)
         }.apply {
@@ -164,7 +161,7 @@ class RegistrationTest {
         }
 
         val firstRequest = RegisterUserRequest(baseDuplicateUsername, "dupemail1@example.com", validPassword)
-        client.post("/register") {
+        client.post(route) {
             contentType(ContentType.Application.Json)
             setBody(firstRequest)
         }.apply {
@@ -172,7 +169,7 @@ class RegistrationTest {
         }
 
         val secondRequest = RegisterUserRequest(baseDuplicateUsername, "dupemail2@example.com", validPassword)
-        client.post("/register") {
+        client.post(route) {
             contentType(ContentType.Application.Json)
             setBody(secondRequest)
         }.apply {
@@ -193,7 +190,7 @@ class RegistrationTest {
         }
 
         val firstRequest = RegisterUserRequest("user1", baseDuplicateEmail, validPassword)
-        client.post("/register") {
+        client.post(route) {
             contentType(ContentType.Application.Json)
             setBody(firstRequest)
         }.apply {
@@ -201,7 +198,7 @@ class RegistrationTest {
         }
 
         val secondRequest = RegisterUserRequest("user2", baseDuplicateEmail, validPassword)
-        client.post("/register") {
+        client.post(route) {
             contentType(ContentType.Application.Json)
             setBody(secondRequest)
         }.apply {
