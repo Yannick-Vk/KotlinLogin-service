@@ -1,8 +1,5 @@
 package xyz.mitzie.services
 
-import com.auth0.jwt.JWT
-import com.auth0.jwt.algorithms.Algorithm
-import io.ktor.server.response.respond
 import org.jetbrains.exposed.exceptions.ExposedSQLException
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
@@ -15,7 +12,6 @@ import xyz.mitzie.dto.RegisterResult
 import xyz.mitzie.dto.RegisterUserRequest
 import xyz.mitzie.dto.UserDTO
 import xyz.mitzie.models.UsersTable
-import java.util.Date
 
 // Check if the parameters are valid
 private fun validateRegisterRequest(req: RegisterUserRequest): RegisterResult? {
@@ -83,16 +79,7 @@ fun loginUser(req: LoginUserRequest, jwtConfig: JwtConfig): LoginResult {
     if (req.password.isBlank()) return LoginResult.ValidationError("Password cannot be empty")
 
     try {
-        // Set token expiration time in ms, 60sec
-        val expiresAt = Date(System.currentTimeMillis() + 60_000)
-        // Generate token
-        val token = JWT.create()
-            .withAudience(jwtConfig.audience)
-            .withIssuer(jwtConfig.domain)
-            .withClaim("username", req.username)
-            .withClaim("email", "no email saved")
-            .withExpiresAt(expiresAt)
-            .sign(Algorithm.HMAC256(jwtConfig.secret))
+        val token = generateToken(jwtConfig, UserDTO(req.username, "No email saved"))
 
         return LoginResult.Success(token)
     } catch (e: ExposedSQLException) {
