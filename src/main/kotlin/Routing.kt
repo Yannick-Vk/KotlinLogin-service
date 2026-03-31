@@ -41,7 +41,8 @@ fun Application.configureRouting() {
 
             when (val result = loginUser(user, jwtConfig)) {
                 is LoginResult.Success -> call.respond(HttpStatusCode.OK, result)
-                is LoginResult.UnknownError -> call.respond(HttpStatusCode.InternalServerError, "An unknown error occurred")
+                is LoginResult.ValidationError -> call.respond(HttpStatusCode.BadRequest, result.message)
+                is LoginResult.UnknownError -> call.respond(HttpStatusCode.InternalServerError, result.message)
             }
         }
         // User has to be loggedIn

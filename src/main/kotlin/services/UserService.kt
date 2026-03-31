@@ -77,19 +77,25 @@ fun registerUser(req: RegisterUserRequest): RegisterResult {
 }
 
 fun loginUser(req: LoginUserRequest, jwtConfig: JwtConfig): LoginResult {
-
     // Handle credentials
+    // Validate fields are not empty
+    if (req.username.isBlank()) return LoginResult.ValidationError("Username cannot be empty")
+    if (req.password.isBlank()) return LoginResult.ValidationError("Password cannot be empty")
 
-    // Set token expiration time in ms, 60sec
-    val expiresAt = Date(System.currentTimeMillis() + 60_000)
-    // Generate token
-    val token = JWT.create()
-        .withAudience(jwtConfig.audience)
-        .withIssuer(jwtConfig.domain)
-        .withClaim("username", req.username)
-        .withClaim("email", "no email saved")
-        .withExpiresAt(expiresAt)
-        .sign(Algorithm.HMAC256(jwtConfig.secret))
+    try {
+        // Set token expiration time in ms, 60sec
+        val expiresAt = Date(System.currentTimeMillis() + 60_000)
+        // Generate token
+        val token = JWT.create()
+            .withAudience(jwtConfig.audience)
+            .withIssuer(jwtConfig.domain)
+            .withClaim("username", req.username)
+            .withClaim("email", "no email saved")
+            .withExpiresAt(expiresAt)
+            .sign(Algorithm.HMAC256(jwtConfig.secret))
 
-    return LoginResult.Success(token)
+        return LoginResult.Success(token)
+    } catch (e: Exception) {
+        return LoginResult.UnknownError(e.message?: "An unknown error occurred")
+    }
 }
