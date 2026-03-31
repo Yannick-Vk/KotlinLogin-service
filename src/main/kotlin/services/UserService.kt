@@ -83,7 +83,7 @@ fun loginUser(req: LoginUserRequest, jwtConfig: JwtConfig): LoginResult {
     try {
         // Find user or null
         val user = transaction {
-            UsersTable.select(UsersTable.username eq req.username).singleOrNull()
+            UsersTable.select(UsersTable.username eq req.username, UsersTable.passwordHash, UsersTable.email).singleOrNull()
         }
         if (user == null) return LoginResult.ValidationError("Invalid username or password.")
         // Validate Password
