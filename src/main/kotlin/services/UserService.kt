@@ -51,7 +51,7 @@ fun registerUser(req: RegisterUserRequest): RegisterResult {
                 return@transaction null
             }
 
-            val insertedId = UsersTable.insert {
+            UsersTable.insert {
                 it[username] = req.username
                 it[email] = req.email
                 it[passwordHash] = hashedPassword
