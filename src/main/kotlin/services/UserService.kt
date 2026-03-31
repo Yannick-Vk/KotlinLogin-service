@@ -1,9 +1,11 @@
 package xyz.mitzie.services
 
 import org.jetbrains.exposed.exceptions.ExposedSQLException
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
+import xyz.mitzie.CheckPassword
 import xyz.mitzie.EncryptPassword
 import xyz.mitzie.JwtConfig
 import xyz.mitzie.dto.LoginResult
@@ -79,7 +81,16 @@ fun loginUser(req: LoginUserRequest, jwtConfig: JwtConfig): LoginResult {
     if (req.password.isBlank()) return LoginResult.ValidationError("Password cannot be empty")
 
     try {
-        val token = generateToken(jwtConfig, UserDTO(req.username, "No email saved"))
+        // Find user or null
+        val user = transaction {
+            UsersTable.select(UsersTable.username eq req.username).singleOrNull()
+        }
+        if (user == null) return LoginResult.ValidationError("Invalid username or password.")
+        // Validate Password
+        val passwordCorrect = CheckPassword(req.password, user[UsersTable.passwordHash])
+        if (!passwordCorrect) return LoginResult.ValidationError("Invalid username or password.")
+
+        val token = generateToken(jwtConfig, UserDTO(user[UsersTable.email], user[UsersTable.email]))
 
         return LoginResult.Success(token)
     } catch (e: ExposedSQLException) {
