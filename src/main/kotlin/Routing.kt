@@ -9,10 +9,12 @@ import io.ktor.server.auth.jwt.*
 import io.ktor.server.request.receive
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import xyz.mitzie.dto.LoginResult
 import xyz.mitzie.dto.RegisterUserRequest
-import xyz.mitzie.dto.UserCredentialsDTO
+import xyz.mitzie.dto.LoginUserRequest
 import xyz.mitzie.dto.UserDTO
-import xyz.mitzie.services.RegisterResult
+import xyz.mitzie.dto.RegisterResult
+import xyz.mitzie.services.loginUser
 import xyz.mitzie.services.registerUser
 import java.util.Date
 
@@ -38,7 +40,12 @@ fun Application.configureRouting() {
         }
 
         post("/login") {
-            val user = call.receive<UserCredentialsDTO>()
+            val user = call.receive<LoginUserRequest>()
+
+            when (val result = loginUser(user)) {
+                is LoginResult.Success -> call.respond(HttpStatusCode.OK)
+                is LoginResult.UnknownError -> call.respond(HttpStatusCode.InternalServerError, "An unknown error occurred")
+            }
             // Handle credentials
 
             // Set token expiration time in ms, 60sec

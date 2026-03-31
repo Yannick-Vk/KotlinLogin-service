@@ -5,6 +5,9 @@ import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import xyz.mitzie.EncryptPassword
+import xyz.mitzie.dto.LoginResult
+import xyz.mitzie.dto.LoginUserRequest
+import xyz.mitzie.dto.RegisterResult
 import xyz.mitzie.dto.RegisterUserRequest
 import xyz.mitzie.dto.UserDTO
 import xyz.mitzie.models.UsersTable
@@ -66,4 +69,9 @@ fun registerUser(req: RegisterUserRequest): RegisterResult {
     } catch(_: Exception) {
         return RegisterResult.UnknownError
     }
+}
+
+fun loginUser(req: LoginUserRequest): LoginResult {
+
+    return LoginResult.UnknownError
 }
