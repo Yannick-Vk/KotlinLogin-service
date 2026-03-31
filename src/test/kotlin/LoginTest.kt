@@ -23,14 +23,12 @@ class LoginTest {
     private val emptyPasswordRequest = LoginUserRequest(validUsername, "")
 
     private val route = "/login"
-    private val registerRoute = "/register"
-
-
 
     suspend fun registerUser(client: HttpClient) {
         val registerBody = RegisterUserRequest(validUsername, validEmail, validPassword)
 
-        client.post(registerRoute) {
+        // We don't care if the user already exists or not
+        client.post("/register") {
             contentType(ContentType.Application.Json)
             setBody(registerBody)
         }
