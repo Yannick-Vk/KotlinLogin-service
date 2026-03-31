@@ -2,6 +2,9 @@ package xyz.mitzie.services
 
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
+import io.ktor.server.application.ApplicationCall
+import io.ktor.server.auth.jwt.JWTPrincipal
+import io.ktor.server.auth.principal
 import xyz.mitzie.JwtConfig
 import xyz.mitzie.dto.UserDTO
 import java.util.Date
@@ -25,4 +28,13 @@ fun generateToken(jwtConfig: JwtConfig, user: UserDTO) :String {
         .sign(Algorithm.HMAC256(jwtConfig.secret))
 
     return token
+}
+
+fun getUserFromToken(call: ApplicationCall) : UserDTO {
+    val principal = call.principal<JWTPrincipal>()
+    // Get username from token claim
+    val username = principal!!.payload.getClaim("username").asString()
+    val email= principal.payload.getClaim("email").asString()
+
+    return UserDTO(username, email)
 }

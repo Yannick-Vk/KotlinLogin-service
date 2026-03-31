@@ -1,17 +1,16 @@
 package xyz.mitzie
 
-import io.ktor.http.HttpStatusCode
+import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
-import io.ktor.server.auth.jwt.*
-import io.ktor.server.request.receive
+import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import xyz.mitzie.dto.LoginResult
-import xyz.mitzie.dto.RegisterUserRequest
 import xyz.mitzie.dto.LoginUserRequest
-import xyz.mitzie.dto.UserDTO
 import xyz.mitzie.dto.RegisterResult
+import xyz.mitzie.dto.RegisterUserRequest
+import xyz.mitzie.services.getUserFromToken
 import xyz.mitzie.services.loginUser
 import xyz.mitzie.services.registerUser
 
@@ -50,12 +49,8 @@ fun Application.configureRouting() {
         authenticate("jwt-auth") {
             // Send back the user data
             get("/user") {
-                val principal = call.principal<JWTPrincipal>()
-                // Get username from token claim
-                val username = principal!!.payload.getClaim("username").asString()
-                val email= principal.payload.getClaim("email").asString()
-
-                call.respond(UserDTO(username, email))
+                val user = getUserFromToken(call)
+                call.respond(user)
             }
         }
     }
