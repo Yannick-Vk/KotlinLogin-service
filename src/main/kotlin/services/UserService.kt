@@ -95,6 +95,8 @@ fun loginUser(req: LoginUserRequest, jwtConfig: JwtConfig): LoginResult {
             .sign(Algorithm.HMAC256(jwtConfig.secret))
 
         return LoginResult.Success(token)
+    } catch (e: ExposedSQLException) {
+        return LoginResult.DatabaseError("Database error during registration: ${e.message}")
     } catch (e: Exception) {
         return LoginResult.UnknownError(e.message?: "An unknown error occurred")
     }

@@ -42,6 +42,7 @@ fun Application.configureRouting() {
             when (val result = loginUser(user, jwtConfig)) {
                 is LoginResult.Success -> call.respond(HttpStatusCode.OK, result)
                 is LoginResult.ValidationError -> call.respond(HttpStatusCode.BadRequest, result.message)
+                is LoginResult.DatabaseError -> call.respond(HttpStatusCode.InternalServerError, result.message)
                 is LoginResult.UnknownError -> call.respond(HttpStatusCode.InternalServerError, result.message)
             }
         }
