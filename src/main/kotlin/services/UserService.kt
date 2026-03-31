@@ -90,12 +90,13 @@ fun loginUser(req: LoginUserRequest, jwtConfig: JwtConfig): LoginResult {
         val passwordCorrect = CheckPassword(req.password, user[UsersTable.passwordHash])
         if (!passwordCorrect) return LoginResult.ValidationError("Invalid username or password.")
 
+        // User is authenticated, generate a token
         val token = generateToken(jwtConfig, UserDTO(user[UsersTable.email], user[UsersTable.email]))
 
         return LoginResult.Success(token)
     } catch (e: ExposedSQLException) {
         return LoginResult.DatabaseError("Database error during registration: ${e.message}")
     } catch (e: Exception) {
-        return LoginResult.UnknownError(e.message?: "An unknown error occurred")
+        return LoginResult.UnknownError("Unknown error: ${e.message?: "An unknown error occurred"}")
     }
 }
