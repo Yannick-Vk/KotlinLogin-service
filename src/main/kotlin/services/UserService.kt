@@ -5,8 +5,8 @@ import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
-import xyz.mitzie.CheckPassword
-import xyz.mitzie.EncryptPassword
+import xyz.mitzie.validatePassword
+import xyz.mitzie.encryptPassword
 import xyz.mitzie.JwtConfig
 import xyz.mitzie.dto.LoginResult
 import xyz.mitzie.dto.LoginUserRequest
@@ -39,7 +39,7 @@ fun registerUser(req: RegisterUserRequest): RegisterResult {
     }
 
     try {
-        val hashedPassword = EncryptPassword(req.password)
+        val hashedPassword = encryptPassword(req.password)
         val createdUserDTO: UserDTO? = transaction {
             val existingUsername = UsersTable.selectAll().where { UsersTable.username eq req.username }.singleOrNull()
             if (existingUsername != null) {
@@ -89,7 +89,7 @@ fun loginUser(req: LoginUserRequest, jwtConfig: JwtConfig): LoginResult {
         }
         if (user == null) return LoginResult.ValidationError("Invalid username or password.")
         // Validate Password
-        val passwordCorrect = CheckPassword(req.password, user[UsersTable.passwordHash])
+        val passwordCorrect = validatePassword(req.password, user[UsersTable.passwordHash])
         if (!passwordCorrect) return LoginResult.ValidationError("Invalid username or password.")
 
         // User is authenticated, generate a token
