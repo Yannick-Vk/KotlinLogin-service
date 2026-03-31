@@ -31,8 +31,6 @@ class LoginTest {
             setBody(registerBody)
         }
 
-        println("registered user")
-
         userRegistered = true
     }
 
