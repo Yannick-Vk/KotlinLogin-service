@@ -1,16 +1,21 @@
 package xyz.mitzie.services
 
+import com.auth0.jwt.JWT
+import com.auth0.jwt.algorithms.Algorithm
+import io.ktor.server.response.respond
 import org.jetbrains.exposed.exceptions.ExposedSQLException
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import xyz.mitzie.EncryptPassword
+import xyz.mitzie.JwtConfig
 import xyz.mitzie.dto.LoginResult
 import xyz.mitzie.dto.LoginUserRequest
 import xyz.mitzie.dto.RegisterResult
 import xyz.mitzie.dto.RegisterUserRequest
 import xyz.mitzie.dto.UserDTO
 import xyz.mitzie.models.UsersTable
+import java.util.Date
 
 // Check if the parameters are valid
 private fun validateRegisterRequest(req: RegisterUserRequest): RegisterResult? {
@@ -71,7 +76,20 @@ fun registerUser(req: RegisterUserRequest): RegisterResult {
     }
 }
 
-fun loginUser(req: LoginUserRequest): LoginResult {
+fun loginUser(req: LoginUserRequest, jwtConfig: JwtConfig): LoginResult {
 
-    return LoginResult.UnknownError
+    // Handle credentials
+
+    // Set token expiration time in ms, 60sec
+    val expiresAt = Date(System.currentTimeMillis() + 60_000)
+    // Generate token
+    val token = JWT.create()
+        .withAudience(jwtConfig.audience)
+        .withIssuer(jwtConfig.domain)
+        .withClaim("username", req.username)
+        .withClaim("email", "no email saved")
+        .withExpiresAt(expiresAt)
+        .sign(Algorithm.HMAC256(jwtConfig.secret))
+
+    return LoginResult.Success(token)
 }
