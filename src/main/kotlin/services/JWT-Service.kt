@@ -6,10 +6,11 @@ import io.ktor.server.application.ApplicationCall
 import io.ktor.server.auth.jwt.JWTPrincipal
 import io.ktor.server.auth.principal
 import xyz.mitzie.JwtConfig
+import xyz.mitzie.dto.UserClaim
 import xyz.mitzie.dto.UserDTO
 import java.util.Date
 
-const val token_lifetime_ms = 60_000 // 60 sec
+const val token_lifetime_ms = 60_000 * 10 // 60 sec
 
 fun calculateExpiration(): Date {
     // Set token expiration time in ms
@@ -30,11 +31,12 @@ fun generateToken(jwtConfig: JwtConfig, user: UserDTO) :String {
     return token
 }
 
-fun getUserFromToken(call: ApplicationCall) : UserDTO {
+fun getUserFromToken(call: ApplicationCall) : UserClaim {
     val principal = call.principal<JWTPrincipal>()
     // Get username from token claim
     val username = principal!!.payload.getClaim("username").asString()
     val email= principal.payload.getClaim("email").asString()
+    val expiresAt = principal.payload.getClaim("exp").asLong()
 
-    return UserDTO(username, email)
+    return UserClaim(username, email, expiresAt)
 }
