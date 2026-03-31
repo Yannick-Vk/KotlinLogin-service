@@ -1,20 +1,18 @@
 package xyz.mitzie
 
-import com.auth0.jwt.JWT
-import com.auth0.jwt.algorithms.Algorithm
-import io.ktor.http.HttpStatusCode
+import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
-import io.ktor.server.auth.jwt.*
-import io.ktor.server.request.receive
+import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import xyz.mitzie.dto.LoginResult
+import xyz.mitzie.dto.LoginUserRequest
+import xyz.mitzie.dto.RegisterResult
 import xyz.mitzie.dto.RegisterUserRequest
-import xyz.mitzie.dto.UserCredentialsDTO
-import xyz.mitzie.dto.UserDTO
-import xyz.mitzie.services.RegisterResult
+import xyz.mitzie.services.getUserFromToken
+import xyz.mitzie.services.loginUser
 import xyz.mitzie.services.registerUser
-import java.util.Date
 
 fun Application.configureRouting() {
 
@@ -38,32 +36,21 @@ fun Application.configureRouting() {
         }
 
         post("/login") {
-            val user = call.receive<UserCredentialsDTO>()
-            // Handle credentials
+            val user = call.receive<LoginUserRequest>()
 
-            // Set token expiration time in ms, 60sec
-            val expiresAt = Date(System.currentTimeMillis() + 60_000)
-            // Generate token
-            val token = JWT.create()
-                .withAudience(jwtConfig.audience)
-                .withIssuer(jwtConfig.domain)
-                .withClaim("username", user.username)
-                .withClaim("email", "no email saved")
-                .withExpiresAt(expiresAt)
-                .sign(Algorithm.HMAC256(jwtConfig.secret))
-
-            call.respond(hashMapOf("token" to token))
+            when (val result = loginUser(user, jwtConfig)) {
+                is LoginResult.Success -> call.respond(HttpStatusCode.OK, result)
+                is LoginResult.ValidationError -> call.respond(HttpStatusCode.BadRequest, result.message)
+                is LoginResult.DatabaseError -> call.respond(HttpStatusCode.InternalServerError, result.message)
+                is LoginResult.UnknownError -> call.respond(HttpStatusCode.InternalServerError, result.message)
+            }
         }
         // User has to be loggedIn
         authenticate("jwt-auth") {
             // Send back the user data
             get("/user") {
-                val principal = call.principal<JWTPrincipal>()
-                // Get username from token claim
-                val username = principal!!.payload.getClaim("username").asString()
-                val email= principal.payload.getClaim("email").asString()
-
-                call.respond(UserDTO(username, email))
+                val user = getUserFromToken(call)
+                call.respond(user)
             }
         }
     }

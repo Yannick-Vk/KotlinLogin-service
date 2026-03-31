@@ -1,6 +1,4 @@
-package xyz.mitzie.services
-
-import xyz.mitzie.dto.UserDTO
+package xyz.mitzie.dto
 
 sealed class RegisterResult {
     data class Success(val user: UserDTO) : RegisterResult()

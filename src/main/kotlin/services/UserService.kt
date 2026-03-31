@@ -1,10 +1,16 @@
 package xyz.mitzie.services
 
 import org.jetbrains.exposed.exceptions.ExposedSQLException
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
-import xyz.mitzie.EncryptPassword
+import xyz.mitzie.validatePassword
+import xyz.mitzie.encryptPassword
+import xyz.mitzie.JwtConfig
+import xyz.mitzie.dto.LoginResult
+import xyz.mitzie.dto.LoginUserRequest
+import xyz.mitzie.dto.RegisterResult
 import xyz.mitzie.dto.RegisterUserRequest
 import xyz.mitzie.dto.UserDTO
 import xyz.mitzie.models.UsersTable
@@ -33,7 +39,7 @@ fun registerUser(req: RegisterUserRequest): RegisterResult {
     }
 
     try {
-        val hashedPassword = EncryptPassword(req.password)
+        val hashedPassword = encryptPassword(req.password)
         val createdUserDTO: UserDTO? = transaction {
             val existingUsername = UsersTable.selectAll().where { UsersTable.username eq req.username }.singleOrNull()
             if (existingUsername != null) {
@@ -45,7 +51,7 @@ fun registerUser(req: RegisterUserRequest): RegisterResult {
                 return@transaction null
             }
 
-            val insertedId = UsersTable.insert {
+            UsersTable.insert {
                 it[username] = req.username
                 it[email] = req.email
                 it[passwordHash] = hashedPassword
@@ -65,5 +71,34 @@ fun registerUser(req: RegisterUserRequest): RegisterResult {
         return RegisterResult.DatabaseError("Database error during registration: ${e.message}")
     } catch(_: Exception) {
         return RegisterResult.UnknownError
+    }
+}
+
+fun loginUser(req: LoginUserRequest, jwtConfig: JwtConfig): LoginResult {
+    // Handle credentials
+    // Validate fields are not empty
+    if (req.username.isBlank()) return LoginResult.ValidationError("Username cannot be empty")
+    if (req.password.isBlank()) return LoginResult.ValidationError("Password cannot be empty")
+
+    try {
+        // Find user or null
+        val user = transaction {
+            UsersTable
+                .select(UsersTable.username eq req.username, UsersTable.email, UsersTable.passwordHash)
+                .singleOrNull()
+        }
+        if (user == null) return LoginResult.ValidationError("Invalid username or password.")
+        // Validate Password
+        val passwordCorrect = validatePassword(req.password, user[UsersTable.passwordHash])
+        if (!passwordCorrect) return LoginResult.ValidationError("Invalid username or password.")
+
+        // User is authenticated, generate a token
+        val token = generateToken(jwtConfig, UserDTO(user[UsersTable.email], user[UsersTable.email]))
+
+        return LoginResult.Success(token)
+    } catch (e: ExposedSQLException) {
+        return LoginResult.DatabaseError("Database error during registration: ${e.message}")
+    } catch (e: Exception) {
+        return LoginResult.UnknownError("Unknown error: ${e.message?: "An unknown error occurred"}")
     }
 }
