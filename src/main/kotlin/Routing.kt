@@ -10,9 +10,11 @@ import xyz.mitzie.dto.LoginResult
 import xyz.mitzie.dto.LoginUserRequest
 import xyz.mitzie.dto.RegisterResult
 import xyz.mitzie.dto.RegisterUserRequest
+import xyz.mitzie.services.PasswordResetResult
 import xyz.mitzie.services.getUserFromToken
 import xyz.mitzie.services.loginUser
 import xyz.mitzie.services.registerUser
+import xyz.mitzie.services.resetPassword
 
 fun Application.configureRouting() {
 
@@ -54,7 +56,13 @@ fun Application.configureRouting() {
             }
 
             post("/reset-password") {
-                call.respondText("Work in progress!")
+                val user = getUserFromToken(call)
+                when (val result = resetPassword(user)) {
+                    is PasswordResetResult.Success -> call.respond(HttpStatusCode.OK, result)
+                    is PasswordResetResult.DatabaseError -> call.respond(HttpStatusCode.BadRequest, result.message)
+                    is PasswordResetResult.UnknownError -> call.respond(HttpStatusCode.InternalServerError, result.message)
+                    is PasswordResetResult.ValidationError -> call.respond(HttpStatusCode.InternalServerError, result.message)
+                }
             }
         }
     }
