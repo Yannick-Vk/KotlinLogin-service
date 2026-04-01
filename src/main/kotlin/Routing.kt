@@ -31,7 +31,7 @@ fun Application.configureRouting() {
                 is RegisterResult.ValidationError -> call.respond(HttpStatusCode.BadRequest, result.message)
                 is RegisterResult.ConflictError -> call.respond(HttpStatusCode.Conflict, result.message)
                 is RegisterResult.DatabaseError -> call.respond(HttpStatusCode.InternalServerError, result.message)
-                is RegisterResult.UnknownError -> call.respond(HttpStatusCode.InternalServerError, "An unknown error occurred")
+                is RegisterResult.UnknownError -> call.respond(HttpStatusCode.InternalServerError, result.message)
             }
         }
 
@@ -42,7 +42,7 @@ fun Application.configureRouting() {
                 is LoginResult.Success -> call.respond(HttpStatusCode.OK, result)
                 is LoginResult.ValidationError -> call.respond(HttpStatusCode.BadRequest, result.message)
                 is LoginResult.DatabaseError -> call.respond(HttpStatusCode.InternalServerError, result.message)
-                is LoginResult.UnknownError -> call.respond(HttpStatusCode.InternalServerError, "An unknown error occurred")
+                is LoginResult.UnknownError -> call.respond(HttpStatusCode.InternalServerError, result.message)
             }
         }
         // User has to be loggedIn

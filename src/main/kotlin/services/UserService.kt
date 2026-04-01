@@ -69,8 +69,8 @@ fun registerUser(req: RegisterUserRequest): RegisterResult {
             return RegisterResult.ConflictError("Username or email already exists (database constraint violated).")
         }
         return RegisterResult.DatabaseError("Database error during registration: ${e.message}")
-    } catch(_: Exception) {
-        return RegisterResult.UnknownError
+    } catch (e: Exception) {
+        return RegisterResult.UnknownError("Unknown error: ${e.message?: "An unknown error occurred"}")
     }
 }
 
