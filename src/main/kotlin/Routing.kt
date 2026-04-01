@@ -52,6 +52,10 @@ fun Application.configureRouting() {
                 val user = getUserFromToken(call)
                 call.respond(user)
             }
+
+            post("/reset-password") {
+                call.respondText("Work in progress!")
+            }
         }
     }
 }
