@@ -23,7 +23,7 @@ fun Application.configureRouting() {
             call.respondText("Mitzie Auth Service up and running!")
         }
 
-        post("register") {
+        post("/register") {
             val request = call.receive<RegisterUserRequest>()
 
             when (val result = registerUser(request)) {
@@ -42,7 +42,7 @@ fun Application.configureRouting() {
                 is LoginResult.Success -> call.respond(HttpStatusCode.OK, result)
                 is LoginResult.ValidationError -> call.respond(HttpStatusCode.BadRequest, result.message)
                 is LoginResult.DatabaseError -> call.respond(HttpStatusCode.InternalServerError, result.message)
-                is LoginResult.UnknownError -> call.respond(HttpStatusCode.InternalServerError, result.message)
+                is LoginResult.UnknownError -> call.respond(HttpStatusCode.InternalServerError, "An unknown error occurred")
             }
         }
         // User has to be loggedIn

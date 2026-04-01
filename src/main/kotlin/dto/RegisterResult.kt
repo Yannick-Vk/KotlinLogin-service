@@ -7,5 +7,5 @@ sealed class RegisterResult {
     data class DatabaseError(val message: String) : RegisterResult()
 
     // Default, for unexpected errors
-    object UnknownError : RegisterResult()
+    data class UnknownError(val message: String) : RegisterResult()
 }
