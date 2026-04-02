@@ -17,3 +17,5 @@ jwt:
   audience: "jwt-audience"
   realm: "mitzie"
   secret: "thisIsNotAGoodPlaceToStoreASecret"
+  accessTokenExpiration: 60000
+  refreshTokenExpiration: 604800000
