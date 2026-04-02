@@ -46,7 +46,7 @@ fun Application.configureRouting() {
             val request = call.receive<RefreshTokenRequest>()
             when (val result = refreshTokens(request, jwtConfig)) {
                 is RefreshTokenResult.Success -> call.respond(HttpStatusCode.OK, result)
-                is RefreshTokenResult.InvalidToken -> call.respond(HttpStatusCode.InternalServerError, result.message)
+                is RefreshTokenResult.InvalidToken -> call.respond(HttpStatusCode.Unauthorized, result.message)
                 is RefreshTokenResult.UnknownError -> call.respond(HttpStatusCode.InternalServerError, result.message)
             }
         }
