@@ -12,9 +12,11 @@ import xyz.mitzie.dto.RefreshTokenRequest
 import xyz.mitzie.dto.RegisterResult
 import xyz.mitzie.dto.RegisterUserRequest
 import xyz.mitzie.security.getJwtConfig
+import xyz.mitzie.services.generateFullToken
 import xyz.mitzie.services.getUserFromToken
 import xyz.mitzie.services.loginUser
 import xyz.mitzie.services.registerUser
+import xyz.mitzie.services.verifyTokenAndGetClaims
 
 fun Application.configureRouting() {
 
@@ -48,8 +50,19 @@ fun Application.configureRouting() {
             }
         }
         post("/refresh") {
-            val token = call.receive<RefreshTokenRequest>()
-            call.respond(HttpStatusCode.OK, token)
+            // Get refresh token from body
+            val request = call.receive<RefreshTokenRequest>()
+            val token = request.refreshToken
+
+            // Validate token
+            val userFromToken = verifyTokenAndGetClaims(jwtConfig, token)
+            if (userFromToken == null) {
+                call.respond(HttpStatusCode.Unauthorized, "Invalid or expired refresh token")
+                return@post
+            }
+            // Generate new tokens
+            val newTokenResponse = generateFullToken(jwtConfig, userFromToken)
+            call.respond(HttpStatusCode.OK, newTokenResponse)
         }
         // User has to be loggedIn
         authenticate("jwt-auth") {
