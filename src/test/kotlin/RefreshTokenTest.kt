@@ -1,22 +1,19 @@
 package xyz.mitzie
 
 import io.ktor.client.*
-import io.ktor.client.call.body
+import io.ktor.client.call.*
 import io.ktor.client.request.*
-import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.testing.*
-import xyz.mitzie.dto.LoginUserRequest
-import xyz.mitzie.dto.RegisterUserRequest
-import xyz.mitzie.dto.TokenResponse
+import xyz.mitzie.dto.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNotEquals
+import kotlin.test.assertNotNull
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation as ClientContentNegotiation
-import xyz.mitzie.dto.LoginResult
-import xyz.mitzie.dto.RefreshTokenRequest
 
-class RefreshTokenTest  {
+class RefreshTokenTest {
     private val route = "/refresh"
 
     suspend fun registerUser(client: HttpClient) {
@@ -53,15 +50,36 @@ class RefreshTokenTest  {
 
         // Register user first
         registerUser(client)
-        val tokens = loginUser(client)
+        val initialTokens = loginUser(client)
 
-        val refreshTokenRequest = RefreshTokenRequest(tokens.refreshToken)
+        val refreshTokenRequest = RefreshTokenRequest(initialTokens.refreshToken)
 
-        client.post(route) {
+        val response = client.post(route) {
             contentType(ContentType.Application.Json)
             setBody(refreshTokenRequest)
         }.apply {
             assertEquals(HttpStatusCode.OK, status)
+        }
+
+        val newTokens = response.body<TokenResponse>()
+        assertNotNull(newTokens.refreshToken, "Refresh-Token was null!")
+        assertNotNull(newTokens.accessToken, "Access-Token was null!")
+
+        assertNotEquals(
+            initialTokens.accessToken,
+            newTokens.accessToken,
+            "New access token should be different from the initial one!"
+        )
+        assertNotEquals(
+            initialTokens.refreshToken,
+            newTokens.refreshToken,
+            "New refresh token should be different from the initial one!"
+        )
+
+        client.get("/user") {
+            header(HttpHeaders.Authorization, "Bearer ${newTokens.accessToken}")
+        }.apply {
+            assertEquals(HttpStatusCode.OK, response.status)
         }
     }
 }
