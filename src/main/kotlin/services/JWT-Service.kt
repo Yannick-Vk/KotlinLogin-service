@@ -13,9 +13,6 @@ import xyz.mitzie.dto.UserDTO
 import xyz.mitzie.security.JwtConfig
 import java.util.*
 
-private val logger = LoggerFactory.getLogger("JWT-Service")
-
-
 fun calculateExpiration(tokenLifetimeMs: Long): Date {
     // Set token expiration time in ms
     return Date(System.currentTimeMillis() + tokenLifetimeMs)
@@ -36,8 +33,6 @@ fun generateFullToken(jwtConfig: JwtConfig, user: UserDTO): TokenResponse {
 private fun generateGenericToken(jwtConfig: JwtConfig, user: UserDTO, lifetime: Long): String {
     val expiresAt = calculateExpiration(lifetime)
     val issuedAt = Date()
-
-    logger.info("Generating token for user: ${user.username}, IssuedAt: ${issuedAt.time}, ExpiresAt: ${expiresAt.time}, Lifetime: $lifetime")
 
     // Generate token
     val token = JWT.create()
@@ -78,9 +73,9 @@ fun verifyTokenAndGetClaims(jwtConfig: JwtConfig, tokenString: String): UserDTO?
         }
 
         UserDTO(username, email)
-    } catch (e: JWTVerificationException) {
+    } catch (_: JWTVerificationException) {
         null
-    } catch (e: Exception) {
+    } catch (_: Exception) {
         null
     }
 }
