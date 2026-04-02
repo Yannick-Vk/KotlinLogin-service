@@ -93,7 +93,7 @@ fun loginUser(req: LoginUserRequest, jwtConfig: JwtConfig): LoginResult {
         if (!passwordCorrect) return LoginResult.ValidationError("Invalid username or password.")
 
         // User is authenticated, generate a token
-        val token = generateAccessToken(jwtConfig, UserDTO(user[UsersTable.email], user[UsersTable.email]))
+        val token = generateFullToken(jwtConfig, UserDTO(user[UsersTable.email], user[UsersTable.email]));
 
         return LoginResult.Success(token)
     } catch (e: ExposedSQLException) {
