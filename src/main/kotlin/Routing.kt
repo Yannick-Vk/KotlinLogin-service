@@ -44,17 +44,11 @@ fun Application.configureRouting() {
         post("/refresh") {
             // Get refresh token from body
             val request = call.receive<RefreshTokenRequest>()
-            val token = request.refreshToken
-
-            // Validate token
-            val userFromToken = verifyTokenAndGetClaims(jwtConfig, token)
-            if (userFromToken == null) {
-                call.respond(HttpStatusCode.Unauthorized, "Invalid or expired refresh token")
-                return@post
+            when (val result = refreshTokens(request, jwtConfig)) {
+                is RefreshTokenResult.Success -> call.respond(HttpStatusCode.OK, result)
+                is RefreshTokenResult.InvalidToken -> call.respond(HttpStatusCode.InternalServerError, result.message)
+                is RefreshTokenResult.UnknownError -> call.respond(HttpStatusCode.InternalServerError, result.message)
             }
-            // Generate new tokens
-            val newTokenResponse = generateFullToken(jwtConfig, userFromToken)
-            call.respond(HttpStatusCode.OK, newTokenResponse)
         }
         // User has to be loggedIn
         authenticate("jwt-auth") {

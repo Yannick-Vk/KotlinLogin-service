@@ -105,3 +105,18 @@ fun loginUser(req: LoginUserRequest, jwtConfig: JwtConfig): LoginResult {
         return LoginResult.UnknownError("Unknown error: ${e.message ?: "An unknown error occurred"}")
     }
 }
+
+fun refreshTokens(req: RefreshTokenRequest, jwtConfig: JwtConfig): RefreshTokenResult {
+    return try {
+        // Get the token from the request or return
+        val userFromToken =
+            verifyTokenAndGetClaims(jwtConfig, req.refreshToken)
+                ?: return RefreshTokenResult.InvalidToken("Invalid or expired token.")
+        // Generate a new token
+        RefreshTokenResult.Success(generateFullToken(jwtConfig, userFromToken))
+    } catch (e: Exception) {
+        logger.error("Unknown error during refresh tokens: ${e.message}", e)
+
+        RefreshTokenResult.UnknownError(e.message?: "An unknown error occurred")
+    }
+}
