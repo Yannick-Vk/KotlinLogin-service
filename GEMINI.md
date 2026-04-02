@@ -6,9 +6,9 @@ This is a Kotlin-based authentication service built with the Ktor framework. It 
 
 The service provides:
 *   A basic API endpoint for checking service status.
-*   A `POST /login` endpoint to issue JWT tokens upon successful (though currently placeholder) credential handling.
+*   A `POST /login` endpoint to issue JWT tokens upon successful credential handling.
 *   A secured `GET /user` endpoint that requires a valid JWT to retrieve user information from the token.
-*   A `POST /register` endpoint which is currently a placeholder and not yet implemented.
+*   A `POST /register` endpoint for user registration, ensuring unique email and username.
 
 ## Building & Running
 
