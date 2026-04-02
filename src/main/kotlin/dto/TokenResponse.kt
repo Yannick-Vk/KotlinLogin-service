@@ -1,4 +1,4 @@
-package com.example.dto
+package xyz.mitzie.dto
 
 import kotlinx.serialization.Serializable
 
