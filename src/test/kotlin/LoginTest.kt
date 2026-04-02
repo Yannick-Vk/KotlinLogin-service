@@ -24,6 +24,7 @@ class LoginTest {
     fun testRegisterWithEmptyUsername() = testApplication {
         environment { config = testConfig }
         application { module() }
+        AuthTestHelper.clearDatabase(application)
 
         val client = createClient {
             install(ClientContentNegotiation) {
@@ -44,6 +45,7 @@ class LoginTest {
     fun testRegisterWithEmptyPassword() = testApplication {
         environment { config = testConfig }
         application { module() }
+        AuthTestHelper.clearDatabase(application)
 
         val client = createClient {
             install(ClientContentNegotiation) {
@@ -65,6 +67,7 @@ class LoginTest {
     fun testLoginSuccess() = testApplication {
         environment { config = testConfig }
         application { module() }
+        AuthTestHelper.clearDatabase(application)
 
         val client = createClient {
             install(ClientContentNegotiation) {
@@ -89,6 +92,7 @@ class LoginTest {
     fun testLoginUserNotFound() = testApplication {
         environment { config = testConfig }
         application { module() }
+        AuthTestHelper.clearDatabase(application)
 
         val client = createClient {
             install(ClientContentNegotiation) {
@@ -113,6 +117,7 @@ class LoginTest {
     fun testLoginWrongPassword() = testApplication {
         environment { config = testConfig }
         application { module() }
+        AuthTestHelper.clearDatabase(application)
 
         val client = createClient {
             install(ClientContentNegotiation) {

@@ -24,6 +24,7 @@ class RefreshTokenTest {
     fun successfulTokenRefresh() = testApplication {
         environment { config = testConfig }
         application { module() }
+        AuthTestHelper.clearDatabase(application)
 
         val client = createClient {
             install(ClientContentNegotiation) {
@@ -76,6 +77,7 @@ class RefreshTokenTest {
     fun testInvalidTokenRefresh() = testApplication {
         environment { config = testConfig }
         application { module() }
+        AuthTestHelper.clearDatabase(application)
 
         val client = createClient {
             install(ClientContentNegotiation) {

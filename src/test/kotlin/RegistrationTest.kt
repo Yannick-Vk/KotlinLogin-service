@@ -31,6 +31,7 @@ class RegistrationTest {
     fun testRegistrationSuccess() = testApplication {
         environment { config = testConfig }
         application { module() }
+        AuthTestHelper.clearDatabase(application)
 
         val client = createClient {
             install(ClientContentNegotiation) {
@@ -56,6 +57,7 @@ class RegistrationTest {
     fun testRegisterWithEmptyUsername() = testApplication {
         environment { config = testConfig }
         application { module() }
+        AuthTestHelper.clearDatabase(application)
 
         val client = createClient {
             install(ClientContentNegotiation) {
@@ -76,6 +78,7 @@ class RegistrationTest {
     fun testRegisterWithEmptyEmail() = testApplication {
         environment { config = testConfig }
         application { module() }
+        AuthTestHelper.clearDatabase(application)
 
         val client = createClient {
             install(ClientContentNegotiation) {
@@ -96,6 +99,7 @@ class RegistrationTest {
     fun testRegisterWithEmptyPassword() = testApplication {
         environment { config = testConfig }
         application { module() }
+        AuthTestHelper.clearDatabase(application)
 
         val client = createClient {
             install(ClientContentNegotiation) {
@@ -116,6 +120,7 @@ class RegistrationTest {
     fun testRegisterWithPasswordTooShort() = testApplication {
         environment { config = testConfig }
         application { module() }
+        AuthTestHelper.clearDatabase(application)
 
         val client = createClient {
             install(ClientContentNegotiation) {
@@ -136,6 +141,7 @@ class RegistrationTest {
     fun testRegisterWithInvalidEmail() = testApplication {
         environment { config = testConfig }
         application { module() }
+        AuthTestHelper.clearDatabase(application)
 
         val client = createClient {
             install(ClientContentNegotiation) {
@@ -156,6 +162,7 @@ class RegistrationTest {
     fun testRegisterWithDuplicateUsername() = testApplication {
         environment { config = testConfig }
         application { module() }
+        AuthTestHelper.clearDatabase(application)
 
         val client = createClient {
             install(ClientContentNegotiation) {
@@ -185,6 +192,7 @@ class RegistrationTest {
     fun testRegisterWithDuplicateEmail() = testApplication {
         environment { config = testConfig }
         application { module() }
+        AuthTestHelper.clearDatabase(application)
 
         val client = createClient {
             install(ClientContentNegotiation) {

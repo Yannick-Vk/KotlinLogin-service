@@ -7,10 +7,15 @@ import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
+import io.ktor.server.application.Application
+import org.jetbrains.exposed.sql.deleteAll
+import org.jetbrains.exposed.sql.transactions.transaction
+import xyz.mitzie.database.configureDatabase
 import xyz.mitzie.dto.LoginResult
 import xyz.mitzie.dto.LoginUserRequest
 import xyz.mitzie.dto.RegisterUserRequest
 import xyz.mitzie.dto.TokenResponse
+import xyz.mitzie.models.UsersTable
 import kotlin.test.assertEquals
 
 object AuthTestHelper {
@@ -38,5 +43,12 @@ object AuthTestHelper {
 
         val loginResult = response.body<LoginResult.Success>()
         return loginResult.tokens
+    }
+
+    fun clearDatabase(application: Application) {
+        application.configureDatabase() // Ensure database is connected and schema created
+        transaction {
+            UsersTable.deleteAll()
+        }
     }
 }
