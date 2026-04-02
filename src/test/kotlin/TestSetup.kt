@@ -26,12 +26,6 @@ val testConfig = MapApplicationConfig(
     "jwt.refreshTokenExpiration" to "604800000",  // (7 days)
 )
 
-fun TestApplication.createJsonClient() = createClient {
-    install(ClientContentNegotiation) {
-        json()
-    }
-}
-
 fun withTestApplicationSetup(test: suspend ApplicationTestBuilder.(client: HttpClient) -> Unit) = testApplication {
     environment { config = testConfig }
     application { module() }
