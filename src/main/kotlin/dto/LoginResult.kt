@@ -1,7 +1,6 @@
 package xyz.mitzie.dto
 
 import kotlinx.serialization.Serializable
-import com.example.dto.TokenResponse
 
 sealed class LoginResult {
     @Serializable
