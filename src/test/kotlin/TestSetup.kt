@@ -31,10 +31,6 @@ fun TestApplication.createJsonClient() = createClient {
     }
 }
 
-const val validUsername = "newUser"
-const val validEmail = "newuser@example.com"
-const val validPassword = "newPassword"
-
 class TestSetup {
     @Test
     fun testRoot() = testApplication {

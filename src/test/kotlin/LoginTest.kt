@@ -1,13 +1,14 @@
 package xyz.mitzie
 
-import io.ktor.client.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.testing.*
+import xyz.mitzie.AuthTestHelper.registerUser
+import xyz.mitzie.AuthTestHelper.validPassword
+import xyz.mitzie.AuthTestHelper.validUsername
 import xyz.mitzie.dto.LoginUserRequest
-import xyz.mitzie.dto.RegisterUserRequest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation as ClientContentNegotiation
@@ -18,21 +19,6 @@ class LoginTest {
     private val emptyPasswordRequest = LoginUserRequest(validUsername, "")
 
     private val route = "/login"
-
-    private var userRegistered = false
-
-    suspend fun registerUser(client: HttpClient) {
-        if (userRegistered) return
-
-        val registerBody = RegisterUserRequest(validUsername, validEmail, validPassword)
-
-        client.post("/register") {
-            contentType(ContentType.Application.Json)
-            setBody(registerBody)
-        }
-
-        userRegistered = true
-    }
 
     @Test
     fun testRegisterWithEmptyUsername() = testApplication {

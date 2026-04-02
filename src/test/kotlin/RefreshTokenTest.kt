@@ -1,14 +1,16 @@
 package xyz.mitzie
 
-import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.request.*
-import io.ktor.client.statement.bodyAsText
+import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.testing.*
 import kotlinx.coroutines.delay
-import xyz.mitzie.dto.*
+import xyz.mitzie.AuthTestHelper.loginUser
+import xyz.mitzie.AuthTestHelper.registerUser
+import xyz.mitzie.dto.RefreshTokenRequest
+import xyz.mitzie.dto.RefreshTokenResult
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
@@ -17,27 +19,6 @@ import io.ktor.client.plugins.contentnegotiation.ContentNegotiation as ClientCon
 
 class RefreshTokenTest {
     private val route = "/refresh"
-
-    suspend fun registerUser(client: HttpClient) {
-        val registerBody = RegisterUserRequest(validUsername, validEmail, validPassword)
-        client.post("/register") {
-            contentType(ContentType.Application.Json)
-            setBody(registerBody)
-        }
-    }
-
-    suspend fun loginUser(client: HttpClient): TokenResponse {
-        val loginBody = LoginUserRequest(validUsername, validPassword)
-        val response = client.post("/login") {
-            contentType(ContentType.Application.Json)
-            setBody(loginBody)
-        }
-
-        assertEquals(HttpStatusCode.OK, response.status)
-
-        val loginResult = response.body<LoginResult.Success>()
-        return loginResult.tokens
-    }
 
     @Test
     fun successfulTokenRefresh() = testApplication {

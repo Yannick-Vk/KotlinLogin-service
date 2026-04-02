@@ -6,6 +6,9 @@ import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation as ClientContentNegotiation
 import io.ktor.server.testing.*
+import xyz.mitzie.AuthTestHelper.validEmail
+import xyz.mitzie.AuthTestHelper.validPassword
+import xyz.mitzie.AuthTestHelper.validUsername
 import xyz.mitzie.dto.RegisterUserRequest
 import kotlin.test.Test
 import kotlin.test.assertEquals
