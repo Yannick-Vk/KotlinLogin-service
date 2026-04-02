@@ -14,6 +14,9 @@ import xyz.mitzie.dto.RegisterResult
 import xyz.mitzie.dto.RegisterUserRequest
 import xyz.mitzie.dto.UserDTO
 import xyz.mitzie.models.UsersTable
+import org.slf4j.LoggerFactory
+
+private val logger = LoggerFactory.getLogger("UserService")
 
 // Check if the parameters are valid
 private fun validateRegisterRequest(req: RegisterUserRequest): RegisterResult? {
@@ -68,8 +71,10 @@ fun registerUser(req: RegisterUserRequest): RegisterResult {
         if (e.message?.contains("duplicate key value violates unique constraint") == true) {
             return RegisterResult.ConflictError("Username or email already exists (database constraint violated).")
         }
+        logger.error("Database error during registration: ${e.message}", e)
         return RegisterResult.DatabaseError("Database error during registration: ${e.message}")
     } catch (e: Exception) {
+        logger.error("Unknown error during registration: ${e.message}", e)
         return RegisterResult.UnknownError("Unknown error: ${e.message?: "An unknown error occurred"}")
     }
 }
@@ -82,11 +87,10 @@ fun loginUser(req: LoginUserRequest, jwtConfig: JwtConfig): LoginResult {
 
     try {
         // Find user or null
-        val user = transaction {
-            UsersTable
-                .select(UsersTable.username eq req.username, UsersTable.email, UsersTable.passwordHash)
-                .singleOrNull()
-        }
+                    val user = transaction {
+                        UsersTable.selectAll()
+                            .where { UsersTable.username eq req.username }
+                            .singleOrNull()        }
         if (user == null) return LoginResult.ValidationError("Invalid username or password.")
         // Validate Password
         val passwordCorrect = validatePassword(req.password, user[UsersTable.passwordHash])
@@ -97,8 +101,10 @@ fun loginUser(req: LoginUserRequest, jwtConfig: JwtConfig): LoginResult {
 
         return LoginResult.Success(token)
     } catch (e: ExposedSQLException) {
+        logger.error("Database error during login: ${e.message}", e)
         return LoginResult.DatabaseError("Database error during registration: ${e.message}")
     } catch (e: Exception) {
+        logger.error("Unknown error during login: ${e.message}", e)
         return LoginResult.UnknownError("Unknown error: ${e.message?: "An unknown error occurred"}")
     }
 }

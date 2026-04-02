@@ -2,16 +2,19 @@ package xyz.mitzie.services
 
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
+import com.auth0.jwt.exceptions.JWTVerificationException
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*
-import xyz.mitzie.security.JwtConfig
+import org.slf4j.LoggerFactory
 import xyz.mitzie.dto.TokenResponse
 import xyz.mitzie.dto.UserClaim
 import xyz.mitzie.dto.UserDTO
+import xyz.mitzie.security.JwtConfig
 import java.util.*
-import com.auth0.jwt.exceptions.JWTVerificationException
-import io.ktor.util.logging.Logger
+
+private val logger = LoggerFactory.getLogger("JWT-Service")
+
 
 fun calculateExpiration(tokenLifetimeMs: Long): Date {
     // Set token expiration time in ms
@@ -32,6 +35,10 @@ fun generateFullToken(jwtConfig: JwtConfig, user: UserDTO): TokenResponse {
 
 private fun generateGenericToken(jwtConfig: JwtConfig, user: UserDTO, lifetime: Long): String {
     val expiresAt = calculateExpiration(lifetime)
+    val issuedAt = Date()
+
+    logger.info("Generating token for user: ${user.username}, IssuedAt: ${issuedAt.time}, ExpiresAt: ${expiresAt.time}, Lifetime: $lifetime")
+
     // Generate token
     val token = JWT.create()
         .withAudience(jwtConfig.audience)
@@ -39,6 +46,8 @@ private fun generateGenericToken(jwtConfig: JwtConfig, user: UserDTO, lifetime: 
         .withClaim("username", user.username)
         .withClaim("email", user.email)
         .withExpiresAt(expiresAt)
+        .withIssuedAt(issuedAt)
+        .withJWTId(UUID.randomUUID().toString())
         .sign(Algorithm.HMAC256(jwtConfig.secret))
 
     return token

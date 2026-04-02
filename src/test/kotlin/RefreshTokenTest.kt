@@ -6,6 +6,7 @@ import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.testing.*
+import kotlinx.coroutines.delay
 import xyz.mitzie.dto.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -52,6 +53,8 @@ class RefreshTokenTest {
         registerUser(client)
         val initialTokens = loginUser(client)
 
+        delay(10L)
+
         val refreshTokenRequest = RefreshTokenRequest(initialTokens.refreshToken)
 
         val response = client.post(route) {
@@ -68,12 +71,12 @@ class RefreshTokenTest {
         assertNotEquals(
             initialTokens.accessToken,
             newTokens.accessToken,
-            "New access token should be different from the initial one!"
+            "New access token should be different from the initial one! Old vs New: ${initialTokens.accessToken} == ${newTokens.accessToken}"
         )
         assertNotEquals(
             initialTokens.refreshToken,
             newTokens.refreshToken,
-            "New refresh token should be different from the initial one!"
+            "New refresh token should be different from the initial one! Old vs New: ${initialTokens.refreshToken} == ${newTokens.refreshToken}"
         )
 
         client.get("/user") {
