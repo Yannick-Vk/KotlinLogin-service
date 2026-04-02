@@ -1,4 +1,4 @@
-package xyz.mitzie
+package xyz.mitzie.security
 
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm

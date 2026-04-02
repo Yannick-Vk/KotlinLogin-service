@@ -1,4 +1,4 @@
-package xyz.mitzie
+package xyz.mitzie.security
 
 import io.ktor.server.application.*
 

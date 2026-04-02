@@ -5,7 +5,7 @@ import com.auth0.jwt.algorithms.Algorithm
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*
-import xyz.mitzie.JwtConfig
+import xyz.mitzie.security.JwtConfig
 import xyz.mitzie.dto.TokenResponse
 import xyz.mitzie.dto.UserClaim
 import xyz.mitzie.dto.UserDTO

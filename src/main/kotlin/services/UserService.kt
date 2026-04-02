@@ -7,7 +7,7 @@ import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import xyz.mitzie.util.validatePassword
 import xyz.mitzie.util.encryptPassword
-import xyz.mitzie.JwtConfig
+import xyz.mitzie.security.JwtConfig
 import xyz.mitzie.dto.LoginResult
 import xyz.mitzie.dto.LoginUserRequest
 import xyz.mitzie.dto.RegisterResult

@@ -11,6 +11,7 @@ import xyz.mitzie.dto.LoginUserRequest
 import xyz.mitzie.dto.RefreshTokenRequest
 import xyz.mitzie.dto.RegisterResult
 import xyz.mitzie.dto.RegisterUserRequest
+import xyz.mitzie.security.getJwtConfig
 import xyz.mitzie.services.getUserFromToken
 import xyz.mitzie.services.loginUser
 import xyz.mitzie.services.registerUser
