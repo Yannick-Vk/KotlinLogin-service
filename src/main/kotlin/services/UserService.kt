@@ -1,19 +1,17 @@
 package xyz.mitzie.services
 
 import org.jetbrains.exposed.exceptions.ExposedSQLException
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
-import xyz.mitzie.validatePassword
-import xyz.mitzie.encryptPassword
-import xyz.mitzie.JwtConfig
-import xyz.mitzie.dto.LoginResult
-import xyz.mitzie.dto.LoginUserRequest
-import xyz.mitzie.dto.RegisterResult
-import xyz.mitzie.dto.RegisterUserRequest
-import xyz.mitzie.dto.UserDTO
+import org.slf4j.LoggerFactory
+import xyz.mitzie.dto.*
 import xyz.mitzie.models.UsersTable
+import xyz.mitzie.security.JwtConfig
+import xyz.mitzie.util.encryptPassword
+import xyz.mitzie.util.validatePassword
+
+private val logger = LoggerFactory.getLogger("UserService")
 
 // Check if the parameters are valid
 private fun validateRegisterRequest(req: RegisterUserRequest): RegisterResult? {
@@ -68,9 +66,11 @@ fun registerUser(req: RegisterUserRequest): RegisterResult {
         if (e.message?.contains("duplicate key value violates unique constraint") == true) {
             return RegisterResult.ConflictError("Username or email already exists (database constraint violated).")
         }
+        logger.error("Database error during registration: ${e.message}", e)
         return RegisterResult.DatabaseError("Database error during registration: ${e.message}")
     } catch (e: Exception) {
-        return RegisterResult.UnknownError("Unknown error: ${e.message?: "An unknown error occurred"}")
+        logger.error("Unknown error during registration: ${e.message}", e)
+        return RegisterResult.UnknownError("Unknown error: ${e.message ?: "An unknown error occurred"}")
     }
 }
 
@@ -84,7 +84,8 @@ fun loginUser(req: LoginUserRequest, jwtConfig: JwtConfig): LoginResult {
         // Find user or null
         val user = transaction {
             UsersTable
-                .select(UsersTable.username eq req.username, UsersTable.email, UsersTable.passwordHash)
+                .selectAll()
+                .where { UsersTable.username eq req.username }
                 .singleOrNull()
         }
         if (user == null) return LoginResult.ValidationError("Invalid username or password.")
@@ -93,12 +94,29 @@ fun loginUser(req: LoginUserRequest, jwtConfig: JwtConfig): LoginResult {
         if (!passwordCorrect) return LoginResult.ValidationError("Invalid username or password.")
 
         // User is authenticated, generate a token
-        val token = generateToken(jwtConfig, UserDTO(user[UsersTable.email], user[UsersTable.email]))
+        val token = generateFullToken(jwtConfig, UserDTO(user[UsersTable.username], user[UsersTable.email]))
 
         return LoginResult.Success(token)
     } catch (e: ExposedSQLException) {
+        logger.error("Database error during login: ${e.message}", e)
         return LoginResult.DatabaseError("Database error during registration: ${e.message}")
     } catch (e: Exception) {
-        return LoginResult.UnknownError("Unknown error: ${e.message?: "An unknown error occurred"}")
+        logger.error("Unknown error during login: ${e.message}", e)
+        return LoginResult.UnknownError("Unknown error: ${e.message ?: "An unknown error occurred"}")
+    }
+}
+
+fun refreshTokens(req: RefreshTokenRequest, jwtConfig: JwtConfig): RefreshTokenResult {
+    return try {
+        // Get the token from the request or return
+        val userFromToken =
+            verifyTokenAndGetClaims(jwtConfig, req.refreshToken)
+                ?: return RefreshTokenResult.InvalidToken("Invalid or expired refresh token.")
+        // Generate a new token
+        RefreshTokenResult.Success(generateFullToken(jwtConfig, userFromToken))
+    } catch (e: Exception) {
+        logger.error("Unknown error during refresh tokens: ${e.message}", e)
+
+        RefreshTokenResult.UnknownError(e.message?: "An unknown error occurred")
     }
 }

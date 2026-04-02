@@ -6,13 +6,9 @@ import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import xyz.mitzie.dto.LoginResult
-import xyz.mitzie.dto.LoginUserRequest
-import xyz.mitzie.dto.RegisterResult
-import xyz.mitzie.dto.RegisterUserRequest
-import xyz.mitzie.services.getUserFromToken
-import xyz.mitzie.services.loginUser
-import xyz.mitzie.services.registerUser
+import xyz.mitzie.dto.*
+import xyz.mitzie.security.getJwtConfig
+import xyz.mitzie.services.*
 
 fun Application.configureRouting() {
 
@@ -43,6 +39,15 @@ fun Application.configureRouting() {
                 is LoginResult.ValidationError -> call.respond(HttpStatusCode.BadRequest, result.message)
                 is LoginResult.DatabaseError -> call.respond(HttpStatusCode.InternalServerError, result.message)
                 is LoginResult.UnknownError -> call.respond(HttpStatusCode.InternalServerError, result.message)
+            }
+        }
+        post("/refresh") {
+            // Get refresh token from body
+            val request = call.receive<RefreshTokenRequest>()
+            when (val result = refreshTokens(request, jwtConfig)) {
+                is RefreshTokenResult.Success -> call.respond(HttpStatusCode.OK, result)
+                is RefreshTokenResult.InvalidToken -> call.respond(HttpStatusCode.Unauthorized, result.message)
+                is RefreshTokenResult.UnknownError -> call.respond(HttpStatusCode.InternalServerError, result.message)
             }
         }
         // User has to be loggedIn

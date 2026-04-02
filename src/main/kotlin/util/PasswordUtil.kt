@@ -1,4 +1,4 @@
-package xyz.mitzie
+package xyz.mitzie.util
 
 import org.mindrot.jbcrypt.BCrypt
 

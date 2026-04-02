@@ -20,7 +20,9 @@ val testConfig = MapApplicationConfig(
     "jwt.secret" to "test-secret-long-enough-for-hashing-algorithms-min-32-chars", // Use a sufficiently long secret for testing
     "jwt.domain" to "http://localhost:8080",
     "jwt.audience" to "users",
-    "jwt.realm" to "Access to 'users' service"
+    "jwt.realm" to "Access to 'users' service",
+    "jwt.accessTokenExpiration" to "60000",      // (1 minute)
+    "jwt.refreshTokenExpiration" to "604800000",  // (7 days)
 )
 
 fun TestApplication.createJsonClient() = createClient {
