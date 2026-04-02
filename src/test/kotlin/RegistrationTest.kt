@@ -1,11 +1,8 @@
 package xyz.mitzie
 
 import io.ktor.client.request.*
-import io.ktor.client.statement.bodyAsText
+import io.ktor.client.statement.*
 import io.ktor.http.*
-import io.ktor.serialization.kotlinx.json.json
-import io.ktor.client.plugins.contentnegotiation.ContentNegotiation as ClientContentNegotiation
-import io.ktor.server.testing.*
 import xyz.mitzie.AuthTestHelper.validEmail
 import xyz.mitzie.AuthTestHelper.validPassword
 import xyz.mitzie.AuthTestHelper.validUsername
@@ -28,17 +25,7 @@ class RegistrationTest {
     private val route = "/register"
 
     @Test
-    fun testRegistrationSuccess() = testApplication {
-        environment { config = testConfig }
-        application { module() }
-        AuthTestHelper.clearDatabase(application)
-
-        val client = createClient {
-            install(ClientContentNegotiation) {
-                json()
-            }
-        }
-
+    fun testRegistrationSuccess() = withTestApplicationSetup { client ->
         val requestBody = RegisterUserRequest(validUsername, validEmail, validPassword)
 
         client.post(route) {
@@ -54,17 +41,7 @@ class RegistrationTest {
     }
 
     @Test
-    fun testRegisterWithEmptyUsername() = testApplication {
-        environment { config = testConfig }
-        application { module() }
-        AuthTestHelper.clearDatabase(application)
-
-        val client = createClient {
-            install(ClientContentNegotiation) {
-                json()
-            }
-        }
-
+    fun testRegisterWithEmptyUsername() = withTestApplicationSetup { client ->
         client.post(route) {
             contentType(ContentType.Application.Json)
             setBody(emptyUsernameRequest)
@@ -75,17 +52,7 @@ class RegistrationTest {
     }
 
     @Test
-    fun testRegisterWithEmptyEmail() = testApplication {
-        environment { config = testConfig }
-        application { module() }
-        AuthTestHelper.clearDatabase(application)
-
-        val client = createClient {
-            install(ClientContentNegotiation) {
-                json()
-            }
-        }
-
+    fun testRegisterWithEmptyEmail() = withTestApplicationSetup { client ->
         client.post(route) {
             contentType(ContentType.Application.Json)
             setBody(emptyEmailRequest)
@@ -96,17 +63,7 @@ class RegistrationTest {
     }
 
     @Test
-    fun testRegisterWithEmptyPassword() = testApplication {
-        environment { config = testConfig }
-        application { module() }
-        AuthTestHelper.clearDatabase(application)
-
-        val client = createClient {
-            install(ClientContentNegotiation) {
-                json()
-            }
-        }
-
+    fun testRegisterWithEmptyPassword() = withTestApplicationSetup { client ->
         client.post(route) {
             contentType(ContentType.Application.Json)
             setBody(emptyPasswordRequest)
@@ -117,17 +74,7 @@ class RegistrationTest {
     }
 
     @Test
-    fun testRegisterWithPasswordTooShort() = testApplication {
-        environment { config = testConfig }
-        application { module() }
-        AuthTestHelper.clearDatabase(application)
-
-        val client = createClient {
-            install(ClientContentNegotiation) {
-                json()
-            }
-        }
-
+    fun testRegisterWithPasswordTooShort() = withTestApplicationSetup { client ->
         client.post(route) {
             contentType(ContentType.Application.Json)
             setBody(passwordTooShortRequest)
@@ -138,17 +85,7 @@ class RegistrationTest {
     }
 
     @Test
-    fun testRegisterWithInvalidEmail() = testApplication {
-        environment { config = testConfig }
-        application { module() }
-        AuthTestHelper.clearDatabase(application)
-
-        val client = createClient {
-            install(ClientContentNegotiation) {
-                json()
-            }
-        }
-
+    fun testRegisterWithInvalidEmail() = withTestApplicationSetup { client ->
         client.post(route) {
             contentType(ContentType.Application.Json)
             setBody(invalidEmailRequest)
@@ -159,17 +96,7 @@ class RegistrationTest {
     }
 
     @Test
-    fun testRegisterWithDuplicateUsername() = testApplication {
-        environment { config = testConfig }
-        application { module() }
-        AuthTestHelper.clearDatabase(application)
-
-        val client = createClient {
-            install(ClientContentNegotiation) {
-                json()
-            }
-        }
-
+    fun testRegisterWithDuplicateUsername() = withTestApplicationSetup { client ->
         val firstRequest = RegisterUserRequest(baseDuplicateUsername, "dupemail1@example.com", validPassword)
         client.post(route) {
             contentType(ContentType.Application.Json)
@@ -189,17 +116,7 @@ class RegistrationTest {
     }
 
     @Test
-    fun testRegisterWithDuplicateEmail() = testApplication {
-        environment { config = testConfig }
-        application { module() }
-        AuthTestHelper.clearDatabase(application)
-
-        val client = createClient {
-            install(ClientContentNegotiation) {
-                json()
-            }
-        }
-
+    fun testRegisterWithDuplicateEmail() = withTestApplicationSetup { client ->
         val firstRequest = RegisterUserRequest("user1", baseDuplicateEmail, validPassword)
         client.post(route) {
             contentType(ContentType.Application.Json)

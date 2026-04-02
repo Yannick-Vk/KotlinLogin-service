@@ -3,15 +3,12 @@ package xyz.mitzie
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
-import io.ktor.serialization.kotlinx.json.*
-import io.ktor.server.testing.*
 import xyz.mitzie.AuthTestHelper.registerUser
 import xyz.mitzie.AuthTestHelper.validPassword
 import xyz.mitzie.AuthTestHelper.validUsername
 import xyz.mitzie.dto.LoginUserRequest
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import io.ktor.client.plugins.contentnegotiation.ContentNegotiation as ClientContentNegotiation
 
 class LoginTest {
     // Requests
@@ -21,17 +18,7 @@ class LoginTest {
     private val route = "/login"
 
     @Test
-    fun testRegisterWithEmptyUsername() = testApplication {
-        environment { config = testConfig }
-        application { module() }
-        AuthTestHelper.clearDatabase(application)
-
-        val client = createClient {
-            install(ClientContentNegotiation) {
-                json()
-            }
-        }
-
+    fun testRegisterWithEmptyUsername() = withTestApplicationSetup { client ->
         client.post(route) {
             contentType(ContentType.Application.Json)
             setBody(emptyUsernameRequest)
@@ -42,17 +29,7 @@ class LoginTest {
     }
 
     @Test
-    fun testRegisterWithEmptyPassword() = testApplication {
-        environment { config = testConfig }
-        application { module() }
-        AuthTestHelper.clearDatabase(application)
-
-        val client = createClient {
-            install(ClientContentNegotiation) {
-                json()
-            }
-        }
-
+    fun testRegisterWithEmptyPassword() = withTestApplicationSetup { client ->
         client.post(route) {
             contentType(ContentType.Application.Json)
             setBody(emptyPasswordRequest)
@@ -64,17 +41,7 @@ class LoginTest {
 
 
     @Test
-    fun testLoginSuccess() = testApplication {
-        environment { config = testConfig }
-        application { module() }
-        AuthTestHelper.clearDatabase(application)
-
-        val client = createClient {
-            install(ClientContentNegotiation) {
-                json()
-            }
-        }
-
+    fun testLoginSuccess() = withTestApplicationSetup { client ->
         registerUser(client)
 
         val loginBody = LoginUserRequest(validUsername, validPassword)
@@ -89,17 +56,7 @@ class LoginTest {
     }
 
     @Test
-    fun testLoginUserNotFound() = testApplication {
-        environment { config = testConfig }
-        application { module() }
-        AuthTestHelper.clearDatabase(application)
-
-        val client = createClient {
-            install(ClientContentNegotiation) {
-                json()
-            }
-        }
-
+    fun testLoginUserNotFound() = withTestApplicationSetup { client ->
         registerUser(client)
 
         val loginBody = LoginUserRequest("unknown_username", "unknown password")
@@ -114,17 +71,7 @@ class LoginTest {
     }
 
     @Test
-    fun testLoginWrongPassword() = testApplication {
-        environment { config = testConfig }
-        application { module() }
-        AuthTestHelper.clearDatabase(application)
-
-        val client = createClient {
-            install(ClientContentNegotiation) {
-                json()
-            }
-        }
-
+    fun testLoginWrongPassword() = withTestApplicationSetup { client ->
         registerUser(client)
 
         val loginBody = LoginUserRequest(validUsername, "wrong password")

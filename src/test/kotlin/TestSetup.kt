@@ -1,5 +1,6 @@
 package xyz.mitzie
 
+import io.ktor.client.HttpClient
 import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
@@ -29,6 +30,20 @@ fun TestApplication.createJsonClient() = createClient {
     install(ClientContentNegotiation) {
         json()
     }
+}
+
+fun withTestApplicationSetup(test: suspend ApplicationTestBuilder.(client: HttpClient) -> Unit) = testApplication {
+    environment { config = testConfig }
+    application { module() }
+    AuthTestHelper.clearDatabase(application)
+
+    val client = createClient {
+        install(ClientContentNegotiation) {
+            json()
+        }
+    }
+
+    test(client)
 }
 
 class TestSetup {

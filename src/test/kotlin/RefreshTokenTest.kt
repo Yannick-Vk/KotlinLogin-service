@@ -4,8 +4,6 @@ import io.ktor.client.call.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
-import io.ktor.serialization.kotlinx.json.*
-import io.ktor.server.testing.*
 import kotlinx.coroutines.delay
 import xyz.mitzie.AuthTestHelper.loginUser
 import xyz.mitzie.AuthTestHelper.registerUser
@@ -15,23 +13,12 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
 import kotlin.test.assertNotNull
-import io.ktor.client.plugins.contentnegotiation.ContentNegotiation as ClientContentNegotiation
 
 class RefreshTokenTest {
     private val route = "/refresh"
 
     @Test
-    fun successfulTokenRefresh() = testApplication {
-        environment { config = testConfig }
-        application { module() }
-        AuthTestHelper.clearDatabase(application)
-
-        val client = createClient {
-            install(ClientContentNegotiation) {
-                json()
-            }
-        }
-
+    fun successfulTokenRefresh() = withTestApplicationSetup { client ->
         // Register user first
         registerUser(client)
         val initialTokens = loginUser(client)
@@ -74,17 +61,7 @@ class RefreshTokenTest {
 
 
     @Test
-    fun testInvalidTokenRefresh() = testApplication {
-        environment { config = testConfig }
-        application { module() }
-        AuthTestHelper.clearDatabase(application)
-
-        val client = createClient {
-            install(ClientContentNegotiation) {
-                json()
-            }
-        }
-
+    fun testInvalidTokenRefresh() = withTestApplicationSetup { client ->
         val request = RefreshTokenRequest(refreshToken = "invalid")
 
         client.post(route) {
