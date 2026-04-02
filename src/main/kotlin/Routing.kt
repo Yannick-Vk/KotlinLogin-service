@@ -1,22 +1,14 @@
 package xyz.mitzie
 
 import io.ktor.http.*
-import io.ktor.server.application.Application
-import io.ktor.server.auth.authenticate
+import io.ktor.server.application.*
+import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import xyz.mitzie.dto.LoginResult
-import xyz.mitzie.dto.LoginUserRequest
-import xyz.mitzie.dto.RefreshTokenRequest
-import xyz.mitzie.dto.RegisterResult
-import xyz.mitzie.dto.RegisterUserRequest
+import xyz.mitzie.dto.*
 import xyz.mitzie.security.getJwtConfig
-import xyz.mitzie.services.generateFullToken
-import xyz.mitzie.services.getUserFromToken
-import xyz.mitzie.services.loginUser
-import xyz.mitzie.services.registerUser
-import xyz.mitzie.services.verifyTokenAndGetClaims
+import xyz.mitzie.services.*
 
 fun Application.configureRouting() {
 

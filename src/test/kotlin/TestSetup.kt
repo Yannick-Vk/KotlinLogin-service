@@ -21,8 +21,8 @@ val testConfig = MapApplicationConfig(
     "jwt.domain" to "http://localhost:8080",
     "jwt.audience" to "users",
     "jwt.realm" to "Access to 'users' service",
-    "jwt.accessTokenExpiration" to "60000",      // <--- Add this (1 minute)
-    "jwt.refreshTokenExpiration" to "604800000",  // <--- Add this (7 days)
+    "jwt.accessTokenExpiration" to "60000",      // (1 minute)
+    "jwt.refreshTokenExpiration" to "604800000",  // (7 days)
 )
 
 fun TestApplication.createJsonClient() = createClient {

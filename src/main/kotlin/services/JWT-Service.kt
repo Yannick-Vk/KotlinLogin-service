@@ -78,8 +78,7 @@ fun verifyTokenAndGetClaims(jwtConfig: JwtConfig, tokenString: String): UserDTO?
         }
 
         UserDTO(username, email)
-    }
-    catch (e: JWTVerificationException) {
+    } catch (e: JWTVerificationException) {
         null
     } catch (e: Exception) {
         null

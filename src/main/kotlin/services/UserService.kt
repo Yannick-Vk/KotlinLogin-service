@@ -1,20 +1,15 @@
 package xyz.mitzie.services
 
 import org.jetbrains.exposed.exceptions.ExposedSQLException
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
-import xyz.mitzie.util.validatePassword
-import xyz.mitzie.util.encryptPassword
-import xyz.mitzie.security.JwtConfig
-import xyz.mitzie.dto.LoginResult
-import xyz.mitzie.dto.LoginUserRequest
-import xyz.mitzie.dto.RegisterResult
-import xyz.mitzie.dto.RegisterUserRequest
-import xyz.mitzie.dto.UserDTO
-import xyz.mitzie.models.UsersTable
 import org.slf4j.LoggerFactory
+import xyz.mitzie.dto.*
+import xyz.mitzie.models.UsersTable
+import xyz.mitzie.security.JwtConfig
+import xyz.mitzie.util.encryptPassword
+import xyz.mitzie.util.validatePassword
 
 private val logger = LoggerFactory.getLogger("UserService")
 
@@ -75,7 +70,7 @@ fun registerUser(req: RegisterUserRequest): RegisterResult {
         return RegisterResult.DatabaseError("Database error during registration: ${e.message}")
     } catch (e: Exception) {
         logger.error("Unknown error during registration: ${e.message}", e)
-        return RegisterResult.UnknownError("Unknown error: ${e.message?: "An unknown error occurred"}")
+        return RegisterResult.UnknownError("Unknown error: ${e.message ?: "An unknown error occurred"}")
     }
 }
 
@@ -87,17 +82,19 @@ fun loginUser(req: LoginUserRequest, jwtConfig: JwtConfig): LoginResult {
 
     try {
         // Find user or null
-                    val user = transaction {
-                        UsersTable.selectAll()
-                            .where { UsersTable.username eq req.username }
-                            .singleOrNull()        }
+        val user = transaction {
+            UsersTable
+                .selectAll()
+                .where { UsersTable.username eq req.username }
+                .singleOrNull()
+        }
         if (user == null) return LoginResult.ValidationError("Invalid username or password.")
         // Validate Password
         val passwordCorrect = validatePassword(req.password, user[UsersTable.passwordHash])
         if (!passwordCorrect) return LoginResult.ValidationError("Invalid username or password.")
 
         // User is authenticated, generate a token
-        val token = generateFullToken(jwtConfig, UserDTO(user[UsersTable.username], user[UsersTable.email]));
+        val token = generateFullToken(jwtConfig, UserDTO(user[UsersTable.username], user[UsersTable.email]))
 
         return LoginResult.Success(token)
     } catch (e: ExposedSQLException) {
@@ -105,6 +102,6 @@ fun loginUser(req: LoginUserRequest, jwtConfig: JwtConfig): LoginResult {
         return LoginResult.DatabaseError("Database error during registration: ${e.message}")
     } catch (e: Exception) {
         logger.error("Unknown error during login: ${e.message}", e)
-        return LoginResult.UnknownError("Unknown error: ${e.message?: "An unknown error occurred"}")
+        return LoginResult.UnknownError("Unknown error: ${e.message ?: "An unknown error occurred"}")
     }
 }
