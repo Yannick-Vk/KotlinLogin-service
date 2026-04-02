@@ -111,7 +111,7 @@ fun refreshTokens(req: RefreshTokenRequest, jwtConfig: JwtConfig): RefreshTokenR
         // Get the token from the request or return
         val userFromToken =
             verifyTokenAndGetClaims(jwtConfig, req.refreshToken)
-                ?: return RefreshTokenResult.InvalidToken("Invalid or expired token.")
+                ?: return RefreshTokenResult.InvalidToken("Invalid or expired refresh token.")
         // Generate a new token
         RefreshTokenResult.Success(generateFullToken(jwtConfig, userFromToken))
     } catch (e: Exception) {

@@ -3,6 +3,7 @@ package xyz.mitzie
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.request.*
+import io.ktor.client.statement.bodyAsText
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.testing.*
@@ -39,7 +40,7 @@ class RefreshTokenTest {
     }
 
     @Test
-    fun refreshRouteTest() = testApplication {
+    fun successfulTokenRefresh() = testApplication {
         environment { config = testConfig }
         application { module() }
 
@@ -53,6 +54,7 @@ class RefreshTokenTest {
         registerUser(client)
         val initialTokens = loginUser(client)
 
+        // Add a small delay to ensure 'iat' and 'exp' claims are different
         delay(10L)
 
         val refreshTokenRequest = RefreshTokenRequest(initialTokens.refreshToken)
@@ -64,7 +66,9 @@ class RefreshTokenTest {
             assertEquals(HttpStatusCode.OK, status)
         }
 
-        val newTokens = response.body<TokenResponse>()
+        val refreshResult = response.body<RefreshTokenResult.Success>()
+        val newTokens = refreshResult.tokens
+
         assertNotNull(newTokens.refreshToken, "Refresh-Token was null!")
         assertNotNull(newTokens.accessToken, "Access-Token was null!")
 
@@ -85,5 +89,28 @@ class RefreshTokenTest {
             assertEquals(HttpStatusCode.OK, response.status)
         }
     }
-}
 
+
+    @Test
+    fun testInvalidTokenRefresh() = testApplication {
+        environment { config = testConfig }
+        application { module() }
+
+        val client = createClient {
+            install(ClientContentNegotiation) {
+                json()
+            }
+        }
+
+        val request = RefreshTokenRequest(refreshToken = "invalid")
+
+        client.post(route) {
+            contentType(ContentType.Application.Json)
+            setBody(request)
+        }.apply {
+            assertEquals(HttpStatusCode.Unauthorized, status)
+            // The actual response body will be a plain string, not a JSON object
+            assertEquals("Invalid or expired refresh token.", bodyAsText())
+        }
+    }
+}
