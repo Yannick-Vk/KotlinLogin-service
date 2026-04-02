@@ -5,8 +5,8 @@ import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
-import xyz.mitzie.validatePassword
-import xyz.mitzie.encryptPassword
+import xyz.mitzie.util.validatePassword
+import xyz.mitzie.util.encryptPassword
 import xyz.mitzie.JwtConfig
 import xyz.mitzie.dto.LoginResult
 import xyz.mitzie.dto.LoginUserRequest
