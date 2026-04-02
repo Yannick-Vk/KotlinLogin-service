@@ -1,13 +1,14 @@
 package xyz.mitzie
 
 import io.ktor.http.*
-import io.ktor.server.application.*
-import io.ktor.server.auth.*
+import io.ktor.server.application.Application
+import io.ktor.server.auth.authenticate
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import xyz.mitzie.dto.LoginResult
 import xyz.mitzie.dto.LoginUserRequest
+import xyz.mitzie.dto.RefreshTokenRequest
 import xyz.mitzie.dto.RegisterResult
 import xyz.mitzie.dto.RegisterUserRequest
 import xyz.mitzie.services.getUserFromToken
@@ -44,6 +45,10 @@ fun Application.configureRouting() {
                 is LoginResult.DatabaseError -> call.respond(HttpStatusCode.InternalServerError, result.message)
                 is LoginResult.UnknownError -> call.respond(HttpStatusCode.InternalServerError, result.message)
             }
+        }
+        post("/refresh") {
+            val token = call.receive<RefreshTokenRequest>()
+            call.respond(HttpStatusCode.OK, token)
         }
         // User has to be loggedIn
         authenticate("jwt-auth") {
